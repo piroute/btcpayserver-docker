@@ -127,6 +127,17 @@
 	{{ end }}
 {{ end }}
 
+# Rate limit config
+# Maps ip address to 
+# - $limit variable if request is a non-GET
+# - empty for GET requests (as we don’t want to limit them)
+map $request_method $binary_remote_addr_mapped {
+    default         $binary_remote_addr;
+    GET             "";
+}
+limit_req_zone $binary_remote_addr zone=getlimit:10m rate=10r/s;
+limit_req_zone $binary_remote_addr_mapped zone=postlimit:10m rate=1r/s;
+
 # If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
 # scheme used to connect to this server
 map $http_x_forwarded_proto $proxy_x_forwarded_proto {
