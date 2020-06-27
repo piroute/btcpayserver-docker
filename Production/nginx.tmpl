@@ -131,12 +131,13 @@
 # Maps ip address to 
 # - $limit variable if request is a non-GET
 # - empty for GET requests (as we don’t want to limit them)
+# Documented here: https://www.nginx.com/blog/rate-limiting-nginx/
 map $request_method $binary_remote_addr_mapped {
     default         $binary_remote_addr;
     GET             "";
 }
-limit_req_zone $binary_remote_addr zone=getlimit:10m rate=10r/s;
-limit_req_zone $binary_remote_addr_mapped zone=postlimit:10m rate=1r/s;
+limit_req_zone $binary_remote_addr zone=getlimit:10m rate=10r/s burst=20 nodelay;
+limit_req_zone $binary_remote_addr_mapped zone=postlimit:10m rate=1r/s burst=5 nodelay;
 
 # If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
 # scheme used to connect to this server
