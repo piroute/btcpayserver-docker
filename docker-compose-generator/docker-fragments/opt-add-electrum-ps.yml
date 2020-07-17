@@ -31,6 +31,10 @@ services:
         disable_mempool_fee_histogram = false
         [master-public-keys]
         wallet = ${EPS_XPUB}
+        ${EPS_XPUB_LINE2-#}
+        ${EPS_XPUB_LINE3-#}
+        ${EPS_XPUB_LINE4-#}
+        ${EPS_XPUB_LINE5-#}
     volumes:
       - "electrum_ps_datadir:/data"
       - "nbxplorer_datadir:/root/.nbxplorer"
