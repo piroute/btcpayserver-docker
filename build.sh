@@ -33,6 +33,10 @@ docker run -v "$(pwd)/Generated:/app/Generated" \
            -e "BTCPAYGEN_SUBNAME=$BTCPAYGEN_SUBNAME" \
            -e "BTCPAY_HOST_SSHAUTHORIZEDKEYS=$BTCPAY_HOST_SSHAUTHORIZEDKEYS" \
            -e "EPS_XPUB=$EPS_XPUB" \
+           -e "EPS_XPUB_LINE2=$EPS_XPUB_LINE2" \
+           -e "EPS_XPUB_LINE3=$EPS_XPUB_LINE3" \
+           -e "EPS_XPUB_LINE4=$EPS_XPUB_LINE4" \
+           -e "EPS_XPUB_LINE5=$EPS_XPUB_LINE5" \
            --rm $BTCPAYGEN_DOCKER_IMAGE
 
 if [ "$BTCPAYGEN_REVERSEPROXY" == "nginx" ]; then
