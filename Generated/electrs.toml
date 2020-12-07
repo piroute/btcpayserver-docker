@@ -1,0 +1,11 @@
+# From documentation at:
+# https://github.com/romanz/electrs/blob/master/doc/usage.md
+# If you're setting password manually instead of cookie files, 
+# configuration file is the only way to set it due to security reasons.
+
+# See configuration file example at:
+# https://github.com/romanz/electrs/blob/master/doc/config_example.toml
+
+# Prefer cookie file unless you have btc-rpc-proxy or a good reason to use username:password
+# cookie and cookie_file can NOT be specified at the same tie.
+cookie = "electrs:jjHnsI7AVd05EVHBo0hmWkIvmFZWVOeeN7iQ26Spcvw="
