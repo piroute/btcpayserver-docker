@@ -1,5 +1,6 @@
 *.yml
 nginx.tmpl
 *.toml
+!electrs.toml
 *.json
 pull-images.sh
