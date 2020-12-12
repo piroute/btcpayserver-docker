@@ -74,3 +74,6 @@ btcpay_up
 
 set +e
 docker image prune -af --filter "label!=org.btcpayserver.image=docker-compose-generator"
+
+# Ansible post configuration (containers already started)
+ansible_post_configure
