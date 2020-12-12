@@ -1,0 +1,11 @@
+- name: Configure localhost (POST)
+  
+  hosts: localhost
+  connection: local
+
+  pre_tasks:
+    - debug: msg="BTCPAY_BASE_DIRECTORY = {{ lookup('env','BTCPAY_BASE_DIRECTORY') }}"
+
+  roles: 
+    - lnd-channels-backup
+

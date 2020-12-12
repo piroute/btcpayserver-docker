@@ -1,0 +1,17 @@
+- name: Install inotify-tools
+  apt: 
+    name: ['inotify-tools']
+    state: latest
+    update_cache: yes
+
+- name: Install lnd-channels-backup systemd unit file
+  template: 
+    src: lnd-channels-backup.service 
+    dest: /etc/systemd/system/lnd-channels-backup.service
+
+- name: Start and enable lnd-channels-backup
+  systemd: 
+    name: lnd-channels-backup 
+    state: restarted 
+    enabled: yes
+    daemon_reload: yes

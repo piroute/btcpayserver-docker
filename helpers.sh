@@ -149,3 +149,39 @@ btcpay_restart() {
     fi
     popd > /dev/null
 }
+
+# Ansible
+
+# https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian
+ansible_install(){
+    if ! command -v ansible &> /dev/null
+    then
+        echo "Wait, Ansible could not be found, installing..."
+        echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+        apt update
+        apt install ansible -y
+    else
+        echo "Okay, Ansible seems to be already installed!"
+    fi
+}
+
+ansible_pre_configure() {
+    echo -e "\n----------- Ansible pre configuration -----------"
+    ansible_install
+
+    pushd . > /dev/null
+    cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker/Ansible"
+    ansible-playbook -i hosts playbook_localhost_pre.yml
+    popd > /dev/null
+}
+
+ansible_post_configure() {
+    echo -e "\n----------- Ansible post configuration -----------"
+    ansible_install
+
+    pushd . > /dev/null
+    cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker/Ansible"
+    ansible-playbook -i hosts playbook_localhost_post.yml
+    popd > /dev/null
+}

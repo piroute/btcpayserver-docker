@@ -272,6 +272,10 @@ btcpay_expand_variables
 
 cd "$ORIGINAL_DIRECTORY"
 
+# Ansible initial configuration
+# Added here because env variables are configured and helpers.sh was just imported
+ansible_pre_configure
+
 echo "
 -------SETUP-----------
 Parameters passed:
@@ -553,3 +557,6 @@ cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"
 install_tooling
 
 cd $ORIGINAL_DIRECTORY
+
+# Ansible post configuration (containers already started)
+ansible_post_configure
