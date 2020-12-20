@@ -37,6 +37,7 @@ docker run -v "$(pwd)/Generated:/app/Generated" \
            -e "EPS_XPUB_LINE3=$EPS_XPUB_LINE3" \
            -e "EPS_XPUB_LINE4=$EPS_XPUB_LINE4" \
            -e "EPS_XPUB_LINE5=$EPS_XPUB_LINE5" \
+           -e "ELECTRS_NETWORK=$ELECTRS_NETWORK" \
            --rm $BTCPAYGEN_DOCKER_IMAGE
 
 if [ "$BTCPAYGEN_REVERSEPROXY" == "nginx" ]; then
