@@ -1,8 +1,11 @@
+- name: apt-get update
+  apt:
+    update_cache: yes
+
 - name: Install inotify-tools
   apt: 
     name: ['inotify-tools']
     state: latest
-    update_cache: yes
 
 - name: Install lnd-channels-backup systemd unit file
   template: 

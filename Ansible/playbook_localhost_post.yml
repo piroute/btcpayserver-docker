@@ -2,10 +2,16 @@
   
   hosts: localhost
   connection: local
+  
+  # Used only during development
+  # gather_facts: no
+
+  vars_files:
+    - vars/versions.yml
 
   pre_tasks:
     - debug: msg="BTCPAY_BASE_DIRECTORY = {{ lookup('env','BTCPAY_BASE_DIRECTORY') }}"
 
   roles: 
     - lnd-channels-backup
-
+    - apps-in-the-terminal
