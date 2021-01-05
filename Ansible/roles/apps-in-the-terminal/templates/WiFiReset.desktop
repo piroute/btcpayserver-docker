@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+
+Type=Application
+
+Terminal=false
+
+Icon=/opt/icons/WiFi.png
+
+Name=Reset WiFi
+
+Exec=bash -c 'sudo dhcpcd -4'
+

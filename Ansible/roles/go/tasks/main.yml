@@ -1,0 +1,39 @@
+- name: Add an apt key by id from a keyserver
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: F6BC817356A3D45E
+
+- name: Add golang repository
+  lineinfile:
+    path: /etc/apt/sources.list.d/golang.list
+    regexp: "^deb "
+    line: "deb http://ppa.launchpad.net/longsleep/golang-backports/ubuntu bionic main"
+    create: yes
+
+- name: apt-get update
+  apt:
+    update_cache: yes
+
+- name: Install go
+  apt: 
+    name: ['golang-{{versions.go}}-go']
+    state: latest
+    update_cache: yes
+
+- name: Symlink go versioned executable to /usr/bin/go
+  file:
+    src: "/usr/lib/go-{{versions.go}}/bin/go"
+    dest: /usr/bin/go
+    state: link
+
+- name: Ensure GOPATH is set in bashrc
+  lineinfile:
+    path: "/root/.bashrc"
+    line: 'export GOPATH=/root/go'
+    create: yes
+
+- name: Ensure GOPATH/bin is in user path
+  lineinfile:
+    path: "/root/.bashrc"
+    line: 'export PATH=$PATH:$GOPATH/bin'
+    create: yes
