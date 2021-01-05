@@ -1,0 +1,118 @@
+- name: Install electrum dependencies
+  apt: 
+    name: [
+      'python3-pyqt5', 'python3-setuptools', 'python3-pip',  'python3-venv', 'python3-cryptography', 
+      'libsecp256k1-0', 
+      'libusb-1.0-0-dev', 'libudev-dev'
+    ]
+    state: present
+    update_cache: yes
+
+- name: Create /opt/electrum if it does not exist
+  file:
+    path: /opt/electrum
+    state: directory
+    mode: '0755'
+
+- name: Manually create the initial virtualenv
+  command:
+    cmd:  python3 -m venv /opt/electrum/venv
+    creates: "/opt/electrum/venv/bin/python"
+
+# Activate venv with
+# source venv/bin/activate
+# pip install ...
+# pip freeze > requirements.txt
+# cp requirements.txt /root/btcpayserver-docker/Ansible/roles/electrum/files/requirements.txt
+
+- name: Copy file with owner and permissions
+  copy:
+    src: requirements.txt
+    dest: /opt/electrum/requirements.txt
+    mode: '0644'
+
+- name: Install requirements
+  pip: 
+    requirements: /opt/electrum/requirements.txt
+    virtualenv: /opt/electrum/venv
+
+- name: Obtain python folder
+  shell: ls /opt/electrum/venv/lib | grep python3 | head -n 1
+  args:
+    executable: /bin/bash
+  register: pythonFolder
+  changed_when: False
+
+- debug: 
+    msg: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
+
+- name: Create a symbolic link to PyQt5
+  file:
+    src: /usr/lib/python3/dist-packages/PyQt5
+    dest: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
+    state: link
+
+- name: Create a symbolic link to sip.cpython-37m-arm-linux-gnueabihf.so
+  file:
+    src: /usr/lib/python3/dist-packages/sip.cpython-37m-arm-linux-gnueabihf.so
+    dest: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-37m-arm-linux-gnueabihf.so"
+    state: link
+
+# sha256sum Electrum-4.0.9.tar.gz
+
+- name: Download electrum
+  get_url:
+    url: https://download.electrum.org/4.0.9/Electrum-4.0.9.tar.gz
+    dest: /opt/electrum/Electrum-4.0.9.tar.gz
+    checksum: sha256:6a3fc11aa475fa4d1573d72116eeddae43a495443d8bfcba15c3a1139f8a72bb
+
+- name: Install Electrum from local file
+  pip:
+    name: file:///opt/electrum/Electrum-4.0.9.tar.gz
+    virtualenv: /opt/electrum/venv
+
+# Udev rules
+
+- name: Ensure group plugdev exists
+  group:
+    name: plugdev
+    state: present
+
+- name: adding existing user pi to group plugdev
+  user:
+    name: pi
+    groups: plugdev
+    append: yes
+
+- name: Copy udev rules file
+  copy:
+    src: 20-hw1.rules
+    dest: /etc/udev/rules.d/20-hw1.rules
+    mode: '0644'
+
+- name: Execute udevadm trigger
+  shell: udevadm trigger
+  args:
+    executable: /bin/bash
+
+- name: Execute udevadm control --reload-rules
+  shell: udevadm control --reload-rules
+  args:
+    executable: /bin/bash
+
+# Desktop file validate
+# desktop-file-validate /home/apps/Electrum.desktop 
+# Should be trusted by each user with
+# gio set /home/apps/Electrum.desktop "metadata::trusted" yes
+
+- name: Create /home/apps if it does not exist
+  file:
+    path: /home/apps
+    state: directory
+    mode: '0755'
+    
+- name: Copy Electrum.desktop file
+  template:
+    src: Electrum.desktop
+    dest: /home/apps/Electrum.desktop
+    mode: '0755'
