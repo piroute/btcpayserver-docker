@@ -65,6 +65,12 @@ btcpay_expand_variables() {
     if [[ "$BTCPAY_HOST" != *.local ]] && [[ "$BTCPAY_HOST" != *.lan ]]; then
         BTCPAY_ANNOUNCEABLE_HOST="$BTCPAY_HOST"
     fi
+
+    # ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
+    ELECTRS_NETWORK=$NBITCOIN_NETWORK
+    if [ $NBITCOIN_NETWORK == "mainnet" ]; then
+        ELECTRS_NETWORK="bitcoin"
+    fi
 }
 
 # Set .env file
