@@ -12,8 +12,9 @@
     dest: "/opt/icons/{{item}}"
     mode: '0644'
   with_items:
-    - Terminal.svg
     - Lock.png
+    - Shutdown.png
+    - Terminal.svg
     - WiFi.png
   
 - name: Create /home/apps if it does not exist
@@ -33,7 +34,7 @@
     mode: '0755'
 
 #
-# Lock Screen
+# Lock Screen & Shutdown
 #
 
 - name: Copy LockScreen.desktop file
@@ -42,20 +43,36 @@
     dest: /home/apps/LockScreen.desktop
     mode: '0755'
 
+- name: Copy Shutdown.desktop file
+  template:
+    src: Shutdown.desktop
+    dest: /home/apps/Shutdown.desktop
+    mode: '0755'
+
 #    
-# Rpi check filesystem
+# Rpi terminal apps
 #
 
-- name: Make rpi-check-filesystem.sh executable
+- name: Make .sh tools executable
   file:
-    path: /root/BTCPayNode/btcpayserver-docker/Tools/rpi-check-filesystem.sh
+    path: "/root/BTCPayNode/btcpayserver-docker/Tools/{{item}}"
     mode: '0755'
+  with_items:
+    - rpi-check-filesystem.sh
+    - rpi-change-configuration.sh
+    - rpi-change-passwords.sh
+    - rpi-check-system-info.sh
 
-- name: Copy CheckSSDFilesystem.desktop file
+- name: Copy .desktop files
   template:
-    src: CheckSSDFilesystem.desktop
-    dest: /home/apps/CheckSSDFilesystem.desktop
+    src: "{{item}}"
+    dest: "/home/apps/{{item}}"
     mode: '0755'
+  with_items:
+    - CheckSSDFilesystem.desktop
+    - ChangeConfiguration.desktop
+    - ChangePasswords.desktop
+    - CheckSystemInfo.desktop
 
 #
 # Lnd Derivations scheme
