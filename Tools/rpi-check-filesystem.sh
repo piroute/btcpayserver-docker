@@ -16,6 +16,10 @@ DOCKER_MOUNTPOINT="/var/lib/docker"
 DOCKER_UUID=$( cat /etc/fstab | grep $DOCKER_MOUNTPOINT | awk '{print $1}' | sed -r 's/^UUID=([0-9a-fA-F-]{36})$/\1/' )
 echo "Docker volumes are mounted at $DOCKER_MOUNTPOINT, the drive has UUID $DOCKER_UUID"
 
+# HOME_MOUNTPOINT="/home"
+# HOME_UUID=$( cat /etc/fstab | grep $HOME_MOUNTPOINT | awk '{print $1}' | sed -r 's/^UUID=([0-9a-fA-F-]{36})$/\1/' )
+# echo "Home is mounted at $HOME_MOUNTPOINT, the drive has UUID $HOME_UUID"
+
 echo "Stopping btcpayserver..."
 service btcpayserver stop
 

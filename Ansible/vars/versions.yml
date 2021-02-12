@@ -1,3 +1,7 @@
+paths:
+  apps: /opt/apps
+  backups: /opt/backups
+
 versions:
   chantools: v0.5.0
   go: 1.13

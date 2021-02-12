@@ -7,6 +7,12 @@
     name: ['inotify-tools']
     state: latest
 
+- name: Create backups directory if it does not exist
+  file:
+    path: "{{paths.backups}}"
+    state: directory
+    mode: '0755'
+
 - name: Install lnd-channels-backup systemd unit file
   template: 
     src: lnd-channels-backup.service 
