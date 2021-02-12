@@ -16,10 +16,10 @@
     - Shutdown.png
     - Terminal.svg
     - WiFi.png
-  
-- name: Create /home/apps if it does not exist
+
+- name: Create apps directory if it does not exist
   file:
-    path: /home/apps
+    path: "{{paths.apps}}"
     state: directory
     mode: '0755'
 
@@ -30,7 +30,7 @@
 - name: Copy WiFiReset.desktop file
   template:
     src: WiFiReset.desktop
-    dest: /home/apps/WiFiReset.desktop
+    dest: "{{paths.apps}}/WiFiReset.desktop"
     mode: '0755'
 
 #
@@ -40,13 +40,13 @@
 - name: Copy LockScreen.desktop file
   template:
     src: LockScreen.desktop
-    dest: /home/apps/LockScreen.desktop
+    dest: "{{paths.apps}}/LockScreen.desktop"
     mode: '0755'
 
 - name: Copy Shutdown.desktop file
   template:
     src: Shutdown.desktop
-    dest: /home/apps/Shutdown.desktop
+    dest: "{{paths.apps}}/Shutdown.desktop"
     mode: '0755'
 
 #    
@@ -66,7 +66,7 @@
 - name: Copy .desktop files
   template:
     src: "{{item}}"
-    dest: "/home/apps/{{item}}"
+    dest: "{{paths.apps}}/{{item}}"
     mode: '0755'
   with_items:
     - CheckSSDFilesystem.desktop
@@ -112,6 +112,6 @@
 - name: Copy LndDerivationScheme.desktop file
   template:
     src: LndDerivationScheme.desktop
-    dest: /home/apps/LndDerivationScheme.desktop
+    dest: "{{paths.apps}}/LndDerivationScheme.desktop"
     mode: '0755'
 

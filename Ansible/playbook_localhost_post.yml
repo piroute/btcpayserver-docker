@@ -22,3 +22,27 @@
     - lnd-channels-backup
     - apps-in-the-terminal
     - app-electrum
+
+  tasks:
+    # Cleanups from previous migrations
+
+    - name: Delete previous backups folder 
+      file:
+        state: absent
+        path: /home/backups
+
+    - name: Delete previous apps folder 
+      file:
+        state: absent
+        path: /home/apps
+
+    - name: Create a symbolic link to apps and backups
+      ansible.builtin.file:
+        src: "/opt/{{item}}"
+        dest: "/home/pi/Desktop/{{item}}"
+        owner: pi
+        group: pi
+        state: link
+      with_items:
+        - apps
+        - backups

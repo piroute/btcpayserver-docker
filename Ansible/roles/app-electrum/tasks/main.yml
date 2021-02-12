@@ -101,18 +101,18 @@
     executable: /bin/bash
 
 # Desktop file validate
-# desktop-file-validate /home/apps/Electrum.desktop 
+# desktop-file-validate /opt/apps/Electrum.desktop 
 # Should be trusted by each user with
-# gio set /home/apps/Electrum.desktop "metadata::trusted" yes
+# gio set /opt/apps/Electrum.desktop "metadata::trusted" yes
 
-- name: Create /home/apps if it does not exist
+- name: Create apps directory if it does not exist
   file:
-    path: /home/apps
+    path: "{{paths.apps}}"
     state: directory
     mode: '0755'
     
 - name: Copy Electrum.desktop file
   template:
     src: Electrum.desktop
-    dest: /home/apps/Electrum.desktop
+    dest: "{{paths.apps}}/Electrum.desktop"
     mode: '0755'

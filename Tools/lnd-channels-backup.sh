@@ -17,7 +17,7 @@ else
 fi
 
 # Define and create the backup folder
-BACKUPS_FOLDER="/home/backups"
+BACKUPS_FOLDER="/opt/backups"
 mkdir -p $BACKUPS_FOLDER
 
 LND_CHANNEL_BACKUP_SOURCE="/var/lib/docker/volumes/generated_lnd_bitcoin_datadir/_data/data/chain/bitcoin/$NBITCOIN_NETWORK/channel.backup"
