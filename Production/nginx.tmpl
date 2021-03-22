@@ -217,7 +217,7 @@ proxy_set_header Proxy "";
 
 {{ $enable_ipv6 := eq (or ($.Env.ENABLE_IPV6) "") "true" }}
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
@@ -231,7 +231,7 @@ server {
 
 {{ if (and (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
@@ -288,7 +288,7 @@ upstream {{ $upstream_name }} {
 	{{ $onionHost := read (printf "/var/lib/tor/hidden_services/%s/hostname" $hiddenHostName) }}
 	{{ if ne $onionHost "" }}
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name {{ trim $onionHost }};
@@ -351,7 +351,7 @@ server {
 
 {{ if eq $https_method "redirect" }}
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name {{ $host }};
@@ -365,7 +365,7 @@ server {
 {{ end }}
 
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	client_max_body_size 100M;
@@ -468,7 +468,7 @@ server {
 {{ if or (not $is_https) (eq $https_method "noredirect") }}
 
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name {{ $host }};
@@ -515,7 +515,7 @@ server {
 
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
-	limit_req zone=getlimit burst=20 nodelay;
+	limit_req zone=getlimit burst=100 nodelay;
 	limit_req zone=postlimit burst=5 nodelay;
 
 	server_name {{ $host }};
