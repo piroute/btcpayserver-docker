@@ -157,7 +157,21 @@ btcpay_restart() {
     popd > /dev/null
 }
 
-# Ansible
+btcpay_dump_db() {
+    pushd . > /dev/null
+    cd "$(dirname "$BTCPAY_ENV_FILE")"
+    backup_dir="/var/lib/docker/volumes/backup_datadir/_data"
+    if [ ! -d "$backup_dir" ]; then
+        docker volume create backup_datadir
+    fi
+    local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
+    docker exec $(docker ps -a -q -f "name=postgres_1") pg_dumpall -c -U postgres > "$backup_dir/$filename"
+    popd > /dev/null
+}
+
+#
+# Ansible Utility Functions
+#
 
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian
 ansible_install(){
@@ -190,17 +204,5 @@ ansible_post_configure() {
     pushd . > /dev/null
     cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker/Ansible"
     ansible-playbook -i hosts playbook_localhost_post.yml
-    popd > /dev/null
-}
-
-btcpay_dump_db() {
-    pushd . > /dev/null
-    cd "$(dirname "$BTCPAY_ENV_FILE")"
-    backup_dir="/var/lib/docker/volumes/backup_datadir/_data"
-    if [ ! -d "$backup_dir" ]; then
-        docker volume create backup_datadir
-    fi
-    local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
-    docker exec $(docker ps -a -q -f "name=postgres_1") pg_dumpall -c -U postgres > "$backup_dir/$filename"
     popd > /dev/null
 }
