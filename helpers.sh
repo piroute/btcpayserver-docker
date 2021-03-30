@@ -104,17 +104,17 @@ BTCPAY_SSHKEYFILE=$BTCPAY_SSHKEYFILE
 BTCPAY_SSHAUTHORIZEDKEYS=$BTCPAY_SSHAUTHORIZEDKEYS
 BTCPAY_HOST_SSHAUTHORIZEDKEYS=$BTCPAY_HOST_SSHAUTHORIZEDKEYS
 LIBREPATRON_HOST=$LIBREPATRON_HOST
+ZAMMAD_HOST=$ZAMMAD_HOST
 BTCTRANSMUTER_HOST=$BTCTRANSMUTER_HOST
 BTCPAY_CRYPTOS=$BTCPAY_CRYPTOS
 WOOCOMMERCE_HOST=$WOOCOMMERCE_HOST
 TOR_RELAY_NICKNAME=$TOR_RELAY_NICKNAME
 TOR_RELAY_EMAIL=$TOR_RELAY_EMAIL
-EPS_XPUB=$EPS_XPUB
-EPS_XPUB_LINE2=$EPS_XPUB_LINE2
-EPS_XPUB_LINE3=$EPS_XPUB_LINE3
-EPS_XPUB_LINE4=$EPS_XPUB_LINE4
-EPS_XPUB_LINE5=$EPS_XPUB_LINE5
-ELECTRS_NETWORK=$ELECTRS_NETWORK" > $BTCPAY_ENV_FILE
+EPS_XPUB=$EPS_XPUB" > $BTCPAY_ENV_FILE
+
+env | grep ^EPS_XPUB_ >> $BTCPAY_ENV_FILE || true
+env | grep ^ELECTRS_NETWORK >> $BTCPAY_ENV_FILE || true
+env | grep ^BWT_ >> $BTCPAY_ENV_FILE || true
 }
 
 btcpay_up() {
@@ -157,7 +157,21 @@ btcpay_restart() {
     popd > /dev/null
 }
 
-# Ansible
+btcpay_dump_db() {
+    pushd . > /dev/null
+    cd "$(dirname "$BTCPAY_ENV_FILE")"
+    backup_dir="/var/lib/docker/volumes/backup_datadir/_data"
+    if [ ! -d "$backup_dir" ]; then
+        docker volume create backup_datadir
+    fi
+    local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
+    docker exec $(docker ps -a -q -f "name=postgres_1") pg_dumpall -c -U postgres > "$backup_dir/$filename"
+    popd > /dev/null
+}
+
+#
+# Ansible Utility Functions
+#
 
 # https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-debian
 ansible_install(){
