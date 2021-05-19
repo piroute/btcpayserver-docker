@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
+if [ $NBITCOIN_NETWORK == "mainnet" ]; then
+    export ELECTRS_NETWORK="bitcoin"
+else
+    export ELECTRS_NETWORK=$NBITCOIN_NETWORK
+fi
+
 set +x
 
 if [[ "$0" = "$BASH_SOURCE" ]]; then
