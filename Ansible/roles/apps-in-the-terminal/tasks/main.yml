@@ -62,6 +62,7 @@
     - rpi-change-configuration.sh
     - rpi-change-passwords.sh
     - rpi-check-system-info.sh
+    - rpi-update-node.sh
 
 - name: Copy .desktop files
   template:
@@ -73,6 +74,7 @@
     - ChangeConfiguration.desktop
     - ChangePasswords.desktop
     - CheckSystemInfo.desktop
+    - UpdateNode.desktop
 
 #
 # Lnd Derivations scheme
