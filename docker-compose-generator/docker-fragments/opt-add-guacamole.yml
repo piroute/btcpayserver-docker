@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  guacd:
+    restart: unless-stopped
+    image: gradientskier/guacd:v1.3.0
+    # environment:
+    #   GUACD_LOG_LEVEL: debug
+
+  guacamole:
+    restart: unless-stopped
+    image: gradientskier/guacamole:v1.3.0
+    environment:
+      GUACAMOLE_HOME: /etc/guacamole
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+    volumes:
+      - "./guacamole/user-mapping.xml:/etc/guacamole/user-mapping.xml:ro"
+    links:
+      - guacd
+    depends_on:
+      - guacd
+   
+  btcpayserver:
+    environment:
+      BTCPAY_EXTERNALSERVICES: "Apache Guacamole:guacamole/#/?username=USERNAME&password=PASSWORD"

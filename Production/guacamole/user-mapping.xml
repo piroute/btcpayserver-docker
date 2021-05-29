@@ -1,0 +1,20 @@
+<user-mapping>
+
+    <!-- Per-user authentication and config information -->
+    <authorize username="USERNAME" password="PASSWORD">
+        <connection name="Remote desktop">
+          <protocol>rdp</protocol>
+          <param name="hostname">172.17.0.1</param>
+          <param name="port">3389</param>
+          <param name="username">pi</param>
+        </connection>
+
+        <connection name="SSH">
+          <protocol>ssh</protocol>
+          <param name="hostname">172.17.0.1</param>
+          <param name="port">22</param>
+          <param name="username">pi</param>
+        </connection>
+    </authorize>
+
+</user-mapping>

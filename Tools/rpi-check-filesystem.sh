@@ -20,17 +20,17 @@ echo "Docker volumes are mounted at $DOCKER_MOUNTPOINT, the drive has UUID $DOCK
 # HOME_UUID=$( cat /etc/fstab | grep $HOME_MOUNTPOINT | awk '{print $1}' | sed -r 's/^UUID=([0-9a-fA-F-]{36})$/\1/' )
 # echo "Home is mounted at $HOME_MOUNTPOINT, the drive has UUID $HOME_UUID"
 
-echo "Stopping btcpayserver..."
-service btcpayserver stop
-
-echo "Stopping docker..."
-service docker stop
-
 echo "Turning off swap..."
 dphys-swapfile swapoff
 
 echo "Removing swap file..."
 rm $SWAP_FILE_PATH
+
+echo "Stopping btcpayserver..."
+service btcpayserver stop
+
+echo "Stopping docker..."
+service docker stop
 
 echo "Unmounting $DOCKER_MOUNTPOINT..."
 umount $DOCKER_MOUNTPOINT

@@ -1,5 +1,22 @@
 #!/bin/bash
 
+#
+# Setting environment
+#
+
+export BTCPAYGEN_ADDITIONAL_FRAGMENTS="opt-more-memory;opt-add-pihole;opt-add-electrs;opt-add-guacamole;$BTCPAYGEN_CUSTOM_FRAGMENTS"
+
+# ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
+if [ $NBITCOIN_NETWORK == "mainnet" ]; then
+    export ELECTRS_NETWORK="bitcoin"
+else
+    export ELECTRS_NETWORK=$NBITCOIN_NETWORK
+fi
+
+#
+# End setting environment
+#
+
 set +x
 
 if [[ "$0" = "$BASH_SOURCE" ]]; then
@@ -357,6 +374,7 @@ export BTCPAYGEN_CRYPTO9=\"$BTCPAYGEN_CRYPTO9\"
 export BTCPAYGEN_LIGHTNING=\"$BTCPAYGEN_LIGHTNING\"
 export BTCPAYGEN_REVERSEPROXY=\"$BTCPAYGEN_REVERSEPROXY\"
 export BTCPAYGEN_ADDITIONAL_FRAGMENTS=\"$BTCPAYGEN_ADDITIONAL_FRAGMENTS\"
+export BTCPAYGEN_CUSTOM_FRAGMENTS=\"$BTCPAYGEN_CUSTOM_FRAGMENTS\"
 export BTCPAYGEN_EXCLUDE_FRAGMENTS=\"$BTCPAYGEN_EXCLUDE_FRAGMENTS\"
 export BTCPAY_DOCKER_COMPOSE=\"$BTCPAY_DOCKER_COMPOSE\"
 export BTCPAY_BASE_DIRECTORY=\"$BTCPAY_BASE_DIRECTORY\"
@@ -427,7 +445,7 @@ if ! [[ -x "$(command -v docker)" ]] || ! [[ -x "$(command -v docker-compose)" ]
         if ! [[ "$OSTYPE" == "darwin"* ]] && $HAS_DOCKER; then
             echo "Trying to install docker-compose by using the btcpayserver/docker-compose ($(uname -m))"
             ! [[ -d "dist" ]] && mkdir dist
-            docker run --rm -v "$(pwd)/dist:/dist" btcpayserver/docker-compose:1.28.5
+            docker run --rm -v "$(pwd)/dist:/dist" btcpayserver/docker-compose:1.28.6
             mv dist/docker-compose /usr/local/bin/docker-compose
             chmod +x /usr/local/bin/docker-compose
             rm -rf "dist"
