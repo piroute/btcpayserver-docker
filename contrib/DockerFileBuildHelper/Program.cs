@@ -40,7 +40,7 @@ namespace DockerFileBuildHelper
             foreach (var image in new[]
             {
                 Image.Parse("btcpayserver/docker-compose-generator"),
-                Image.Parse("btcpayserver/docker-compose:1.28.5"),
+                Image.Parse("btcpayserver/docker-compose:1.28.6"),
             }.Concat(GetImages(fragmentDirectory)))
             {
                 Console.WriteLine($"Image: {image.ToString()}");
@@ -599,6 +599,19 @@ namespace DockerFileBuildHelper
                     dockerInfo.DockerFilePathARM64v8 = $"docker/arm64v8.Dockerfile";
                     dockerInfo.GitLink = "https://github.com/bwt-dev/bwt";
                     dockerInfo.GitRef = $"v{image.Tag.Split('-')[0]}";
+                    break;
+                case "sphinx-relay":
+                    dockerInfo.DockerFilePath = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/stakwork/sphinx-relay";
+                    dockerInfo.GitRef = $"{image.Tag}";
+                    break;
+                case "lndhub":
+                    dockerInfo.DockerFilePath = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/BlueWallet/LndHub";
+                    dockerInfo.GitRef = $"{image.Tag.Split("@")[0]}";
                     break;
                 default:
                     if (firstTry)
