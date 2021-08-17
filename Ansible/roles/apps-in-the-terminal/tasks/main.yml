@@ -89,12 +89,13 @@
     repo: https://github.com/guggero/chantools.git
     dest: /opt/chantools
     version: "{{versions.chantools}}"
+  register: clone_chantools_repo
 
 - name: Make install chantools
   command: make install
   args:
     chdir: /opt/chantools
-    creates: /root/go/bin/chantools
+  when: clone_chantools_repo.changed
 
 - name: Manually create the initial virtualenv
   command:
