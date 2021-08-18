@@ -70,6 +70,7 @@
     dest: "{{paths.apps}}/{{item}}"
     mode: '0755'
   with_items:
+    - BackupNode.desktop
     - CheckSSDFilesystem.desktop
     - ChangeConfiguration.desktop
     - ChangePasswords.desktop

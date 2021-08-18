@@ -55,6 +55,7 @@ docker_dir=/var/lib/docker
 volumes_dir="$docker_dir/volumes"
 backup_dir="$docker_dir/opt/backups"
 pihome_dir="/home/pi"
+mkcert_dir="/opt/mkcert"
 
 # Ensure backup dir exists
 mkdir -p $backup_dir
@@ -94,8 +95,10 @@ else
       --exclude="$volumes_dir/generated_litecoin_datadir/*" \
       --exclude="$volumes_dir/generated_electrs_datadir/*" \
       --exclude="$volumes_dir/**/logs/*" \
+      --exclude="$pihome_dir/.pcsc10/*" \
+      --exclude="$pihome_dir/thinclient_drives" \
       -cvzf $backup_path \
-      $dbdump_path $pihome_dir $volumes_dir
+      $dbdump_path $pihome_dir $mkcert_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
     btcpay_up
