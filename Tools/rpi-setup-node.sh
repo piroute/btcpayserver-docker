@@ -98,6 +98,11 @@ ansible-playbook -i hosts playbook_localhost_setup.yml
 # Btcpay configuration
 #
 
+echo "export NBITCOIN_NETWORK=$NBITCOIN_NETWORK
+export LIGHTNING_ALIAS=$LIGHTNING_ALIAS
+export BTCPAY_HOST=$BTCPAY_HOST
+" > /root/BTCPayNode/node_configuration_script.sh
+
 echo "#!/bin/bash
 
 cd /root/BTCPayNode/btcpayserver-docker

@@ -141,17 +141,6 @@
         state: mounted
       when: microsd_drive.stat.exists
   
-    - name: Add btcpay config lines
-      lineinfile:
-        path: /root/BTCPayNode/node_configuration_script.sh
-        regexp: "{{item.regex}}"
-        line: "{{item.line}}"
-        create: yes
-      with_items:
-        - {line: "export NBITCOIN_NETWORK={{ lookup('env','NBITCOIN_NETWORK') }}", regex: "^export NBITCOIN_NETWORK="}
-        - {line: "export LIGHTNING_ALIAS={{ lookup('env','LIGHTNING_ALIAS') }}", regex: "^export LIGHTNING_ALIAS="}
-        - {line: "export BTCPAY_HOST={{ lookup('env','BTCPAY_HOST') }}", regex: "^export BTCPAY_HOST="}
-
   roles:
     - swap
     - ufw
