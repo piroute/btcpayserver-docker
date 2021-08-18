@@ -30,6 +30,15 @@
 
   tasks:
 
+    - name: Change ownership of the apps folder to root (apps should not be modified)
+      ansible.builtin.file:
+        path: "{{paths.apps}}"
+        owner: root
+        group: root
+        mode: '0755'
+
+    # Changing ownership of the backups folder to pi (to delete old backups) is done by mounting options
+
     - name: Create a symbolic link to apps and backups
       ansible.builtin.file:
         src: "/opt/{{item}}"
