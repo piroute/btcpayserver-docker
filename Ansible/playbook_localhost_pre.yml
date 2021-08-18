@@ -8,3 +8,7 @@
       apt:
         update_cache: yes
 
+    - name: Install node system dependencies
+      apt: 
+        name: ['jq']
+        state: present
