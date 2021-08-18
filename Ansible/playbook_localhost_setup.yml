@@ -83,8 +83,15 @@
       ansible.builtin.file:
         path: /var/lib/docker
         state: directory
+      register: create_docker_dir
 
-    # TODO: chattr +i /var/lib/docker
+    - name: Ensure /var/lib/docker is immutable (only after creation).
+      ansible.builtin.file:
+        path: /var/lib/docker
+        attr: +i
+      register: chattr_docker_dir
+      changed_when: "'i' not in chattr_docker_dir.diff.before.attributes"
+      when: create_docker_dir.changed
 
     - name: Mount /var/lib/docker
       ansible.posix.mount:
