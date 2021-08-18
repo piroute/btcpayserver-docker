@@ -84,6 +84,7 @@ fi
 backup_path="$backup_dir/${filename}"
 backup_path_encrypted="$backup_dir/${filename_encrypted}"
 dbdump_path="$backup_dir/${dumpname}"
+node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"
 . helpers.sh
@@ -108,7 +109,7 @@ else
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
-      $dbdump_path $pihome_dir $mkcert_dir $volumes_dir
+      $dbdump_path $pihome_dir $node_config_path $mkcert_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
     btcpay_up
