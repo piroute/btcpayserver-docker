@@ -18,22 +18,31 @@
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root."
     echo "Use the command 'sudo su -' (include the trailing hypen) and try again"
+    read -n1 -p "Press any key to exit..."
     exit 1
+fi
+
+if [ -z "$BTCPAY_BASE_DIRECTORY" ] || [ -z "$NBITCOIN_NETWORK" ]; then
+    source $HOME/.profile
+    source /etc/profile.d/btcpay-env.sh
 fi
 
 case "$BACKUP_PROVIDER" in
   "Dropbox")
     if [ -z "$DROPBOX_TOKEN" ]; then
         echo "Set DROPBOX_TOKEN environment variable and try again."
+        read -n1 -p "Press any key to exit..."
         exit 1
     fi
     echo "Dropbox backup provider still not supported."
+    read -n1 -p "Press any key to exit..."
     exit 1
     ;;
 
   "SCP")
     if [ -z "$SCP_TARGET" ]; then
         echo "Set SCP_TARGET environment variable and try again."
+        read -n1 -p "Press any key to exit..."
         exit 1
     fi
     ;;
@@ -41,6 +50,7 @@ case "$BACKUP_PROVIDER" in
   "Localfs")
     if [ -z "$LOCALFS_TARGET" ]; then
         echo "Set LOCALFS_TARGET environment variable and try again."
+        read -n1 -p "Press any key to exit..."
         exit 1
     fi
     ;;
@@ -97,7 +107,7 @@ else
       --exclude="$volumes_dir/**/logs/*" \
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
-      -cvzf $backup_path \
+      -czf $backup_path \
       $dbdump_path $pihome_dir $mkcert_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
@@ -116,7 +126,7 @@ elif ! test -f $WALLET_UNLOCK_PATH 2>/dev/null; then
     echo "Cannot encrypt backup, walletunlock.json file does not exist at $WALLET_UNLOCK_PATH. Make sure the node is synchronised"
 else
     # Read the seed
-    AEZEED_MNEMONIC=$(jq -r '.cipher_seed_mnemonic | join(" ")' $WALLET_UNLOCK_PATH)
+    export AEZEED_MNEMONIC=$(jq -r '.cipher_seed_mnemonic | join(" ")' $WALLET_UNLOCK_PATH)
     
     # Encrypt the backup
     echo "Encrypt backup with lnd internal lightning node seed"
@@ -173,4 +183,5 @@ else
   rm $dbdump_path
 fi
 
-echo "Backup done."
+read -n1 -p "Backup done. Press any key to exit..."
+exit

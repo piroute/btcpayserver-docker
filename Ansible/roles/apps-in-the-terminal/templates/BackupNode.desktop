@@ -9,4 +9,4 @@ Icon=/opt/icons/Terminal.svg
 
 Name=Backup Node
 
-Exec=bash -c 'sudo /root/BTCPayNode/btcpayserver-docker/backup.sh'
+Exec=bash -c 'sudo BACKUP_PROVIDER=Localfs LOCALFS_TARGET=/opt/backups BACKUP_TIMESTAMP=true /root/BTCPayNode/btcpayserver-docker/backup.sh'
