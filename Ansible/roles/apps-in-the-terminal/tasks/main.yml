@@ -71,6 +71,8 @@
     mode: '0755'
   with_items:
     - BackupNode.desktop
+    - BtcpayserverRestart.desktop
+    - BtcpayserverStop.desktop
     - CheckSSDFilesystem.desktop
     - ChangeConfiguration.desktop
     - ChangePasswords.desktop
