@@ -30,6 +30,11 @@
 
   tasks:
 
+    - name: Create a line in /etc/hosts for BTCPAY_HOST
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1       {{ lookup('env','BTCPAY_HOST') }}"
+
     - name: Change ownership of the apps folder to root (apps should not be modified)
       ansible.builtin.file:
         path: "{{paths.apps}}"
