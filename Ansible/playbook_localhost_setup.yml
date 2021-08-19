@@ -5,18 +5,18 @@
   hosts: localhost
   connection: local
 
-  # TODO: Set to no only during development
-  gather_facts: no
+  # Set to no only during development
+  gather_facts: yes
 
   vars_files:
     - vars/versions.yml
   
   pre_tasks:
   
-  # TODO: Add comments only during development
-  #   - name: apt-get update
-  #     apt:
-  #       update_cache: yes
+  # Add comments only during development
+    - name: apt-get update
+      apt:
+        update_cache: yes
 
     - name: Create partitions
       community.general.parted:

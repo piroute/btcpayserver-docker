@@ -5,8 +5,8 @@
   hosts: localhost
   connection: local
   
-  # TODO: Set to no only during development
-  gather_facts: no
+  # Set to no only during development
+  gather_facts: yes
 
   vars_files:
     - vars/versions.yml
