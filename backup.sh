@@ -106,6 +106,8 @@ else
       --exclude="$volumes_dir/generated_litecoin_datadir/*" \
       --exclude="$volumes_dir/generated_electrs_datadir/*" \
       --exclude="$volumes_dir/**/logs/*" \
+      --exclude="$pihome_dir/.cache/*" \
+      --exclude="$pihome_dir/.local/share/Trash/*" \
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
@@ -127,13 +129,13 @@ elif ! test -f $WALLET_UNLOCK_PATH 2>/dev/null; then
     echo "Cannot encrypt backup, walletunlock.json file does not exist at $WALLET_UNLOCK_PATH. Make sure the node is synchronised"
 else
     # Read the seed
-    export AEZEED_MNEMONIC=$(jq -r '.cipher_seed_mnemonic | join(" ")' $WALLET_UNLOCK_PATH)
+    AEZEED_MNEMONIC=$(jq -r '.cipher_seed_mnemonic | join(" ")' $WALLET_UNLOCK_PATH)
     
     # Encrypt the backup
     echo "Encrypt backup with lnd internal lightning node seed"
     openssl enc -in $backup_path \
       -aes-256-cbc \
-      -pbkdf2 -pass env:AEZEED_MNEMONIC \
+      -pbkdf2 -pass pass:"$AEZEED_MNEMONIC" \
       > $backup_path_encrypted
 
     # Decrypt with
