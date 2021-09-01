@@ -62,10 +62,7 @@ esac
 
 # preparation
 docker_dir=/var/lib/docker
-volumes_dir="$docker_dir/volumes"
 backup_dir="$docker_dir/opt/backups"
-pihome_dir="/home/pi"
-mkcert_dir="/opt/mkcert"
 
 # Ensure backup dir exists
 mkdir -p $backup_dir
@@ -83,8 +80,14 @@ fi
 
 backup_path="$backup_dir/${filename}"
 backup_path_encrypted="$backup_dir/${filename_encrypted}"
+
+# All stuff to backup
 dbdump_path="$backup_dir/${dumpname}"
+mkcert_dir="/opt/mkcert"
 node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
+pihome_dir="/home/pi"
+ssh_dir="/root/.ssh"
+volumes_dir="$docker_dir/volumes"
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"
 . helpers.sh
@@ -111,7 +114,7 @@ else
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
-      $dbdump_path $pihome_dir $node_config_path $mkcert_dir $volumes_dir
+      $dbdump_path $mkcert_dir $node_config_path $pihome_dir $ssh_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
     btcpay_up
