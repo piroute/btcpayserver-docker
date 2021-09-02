@@ -15,6 +15,12 @@
 #   WILL LOSE ALL YOUR FUNDS IN A CHANNEL, because the counterparty will publish a
 #   revocation key!
 
+echo ""
+echo " -------------------- "
+echo "|    Node backup     |"
+echo " -------------------- "
+echo ""
+
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root."
     echo "Use the command 'sudo su -' (include the trailing hypen) and try again"
@@ -85,12 +91,23 @@ backup_path_encrypted="$backup_dir/${filename_encrypted}"
 dbdump_path="$backup_dir/${dumpname}"
 mkcert_dir="/opt/mkcert"
 node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
+node_version_file_path="$BTCPAY_BASE_DIRECTORY/node_version_file"
 pihome_dir="/home/pi"
 ssh_dir="/root/.ssh"
 volumes_dir="$docker_dir/volumes"
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"
 . helpers.sh
+
+# Add node version file to backup
+GIT_REMOTE=$(git remote -v | grep origin | grep fetch |  awk -F " " '{print $2}')
+GIT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
+GIT_TAG=$(git describe --exact-match --tags $(git log -n1 --pretty='%h') 2>&1)
+
+echo "FILE_VERSION=1
+GIT_REMOTE=\"$GIT_REMOTE\"
+GIT_BRANCH=\"$GIT_BRANCH\"
+GIT_TAG=\"$GIT_TAG\"" > $node_version_file_path
 
 # dump database
 echo "Dumping database …"
@@ -114,7 +131,7 @@ else
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
-      $dbdump_path $mkcert_dir $node_config_path $pihome_dir $ssh_dir $volumes_dir
+      $dbdump_path $mkcert_dir $node_config_path $node_version_file_path $pihome_dir $ssh_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
     btcpay_up

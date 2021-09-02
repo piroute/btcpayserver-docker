@@ -160,8 +160,8 @@ btcpay_dump_db() {
     fi
     local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
     POSTGRES_CONTAINER=$(docker ps -a -q -f "name=postgres_1")
-    if [ -z "$POSTGRES_CONTAINER" ]; then
-        echo "Error: Cannot find postgres container to create dumb, make sure btcpayserver is started" >&2
+    if [ -z "$POSTGRES_CONTAINER" ] || [ $(docker container inspect -f '{{.State.Status}}' $POSTGRES_CONTAINER) != "running" ]; then
+        echo "Error: Cannot find postgres container to create dump, make sure btcpayserver is started" >&2
         read -n1 -p "Press any key to exit..." && exit 1
     else
         docker exec $POSTGRES_CONTAINER pg_dumpall -c -U postgres > "$backup_dir/$filename"
