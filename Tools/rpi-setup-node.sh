@@ -22,16 +22,16 @@ check_github_updates() {
   echo " -------------------- "
   echo ""
 
-  git fetch origin
-  REPO_CURRENT_BRANCH=$(git symbolic-ref -q HEAD)
-  REPO_CURRENT_BRANCH=${REPO_CURRENT_BRANCH##refs/heads/}
-  REPO_CURRENT_BRANCH=${REPO_CURRENT_BRANCH:-HEAD}
-  REPO_NEW_COMMITS=$(git rev-list HEAD...origin/$REPO_CURRENT_BRANCH --count)
-  if [[ $REPO_NEW_COMMITS -ne 0 ]]; then
+  # Taken from: https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
+  REPO_CURRENT_HASH=$(git rev-parse HEAD)
+  REPO_ORIGIN_HASH=$(git ls-remote $(git rev-parse --abbrev-ref @{u} | sed 's/\// /g') | cut -f1)
+  if [[ ! -z $REPO_ORIGIN_HASH &&  "$REPO_CURRENT_HASH" != "$REPO_ORIGIN_HASH" ]]; then
     git pull
     echo "Wow, good news, we pulled $REPO_NEW_COMMITS updates from the remote repo."
     read -n1 -p "This program will now exit. Please press any key to exit, then restart the setup..."
     exit
+  else
+    echo "Not pulling updates from the remote repo."
   fi
 }
 
