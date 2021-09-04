@@ -14,9 +14,9 @@
   pre_tasks:
   
   # Add comments only during development
-    - name: apt-get update
-      apt:
-        update_cache: yes
+    - name: apt-get update with allow-releaseinfo-change
+      command:
+        cmd: apt-get update --allow-releaseinfo-change
 
     - name: Create partitions
       community.general.parted:

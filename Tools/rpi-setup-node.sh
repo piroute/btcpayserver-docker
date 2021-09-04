@@ -149,7 +149,7 @@ restore_from_backup() {
     1 ) 
       GIT_BRANCH=$(grep GIT_BRANCH $BACKUP_PATH/$BACKUP_INFO_PATH | cut -d '=' -f2)
       case $GIT_BRANCH in
-        prod ) BACKUP_VERSION=1;;
+	      "prod" ) BACKUP_VERSION=1 ;;
         * ) ;;
       esac
       ;;
@@ -161,7 +161,7 @@ restore_from_backup() {
   # Depending on the backup version, obtain the position of config script path
   NODE_CONFIG_SCRIPT_PATH="root/BTCPayNode/node_configuration_script.sh"
   case $BACKUP_VERSION in
-    1 ) NODE_CONFIG_SCRIPT_PATH="/var/lib/docker/opt/node_configuration_script.sh" ;;
+    1 ) NODE_CONFIG_SCRIPT_PATH="var/lib/docker/opt/node_configuration_script.sh" ;;
     * ) ;;
   esac
 
@@ -276,6 +276,8 @@ else
     1 )
     # Perform migration from v1 backup to current version
     mv /var/lib/docker/opt/node_configuration_script.sh /root/BTCPayNode/node_configuration_script.sh
+    rm -rf /opt/mkcert
+    rm -rf /home/pi/rootCA.pem
     ;;
     2 )
     # Perform migration from v2 backup to current version
