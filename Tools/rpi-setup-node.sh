@@ -98,7 +98,7 @@ restore_from_backup() {
     fi
   fi
 
-  BACKUP_ENCRYPTED_PATH=$(find $BACKUP_FOLDER -maxdepth 1 -type f -name "*backup.tar.gz.enc" | head -n 1)
+  BACKUP_ENCRYPTED_PATH=$(find $BACKUP_FOLDER -maxdepth 1 -type f -name "*backup.tar.gz.enc" | tail -n 1)
   if [ -z $BACKUP_ENCRYPTED_PATH ]; then
     echo "Cannot find a backup. Please insert microsd with backups."
     read -n1 -p "Press any key to exit..." && exit 1
@@ -122,27 +122,63 @@ restore_from_backup() {
   BACKUP_TAR_PATH="/tmp/backup-to-restore.tar.gz"
   rm -rf $BACKUP_TAR_PATH
   read -p "Insert your lnd mnemonic to decrypt backup: " AEZEED_MNEMONIC
+  echo "Decrypting the backup..."
   openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:"$AEZEED_MNEMONIC" -in $BACKUP_ENCRYPTED_PATH -out $BACKUP_TAR_PATH 2>/dev/null
   if [ $? -ne 0 ]
   then
-    echo "Cannot decrypt backup with provided menmonic."
+    echo "ERROR: cannot decrypt backup with provided menmonic."
     read -n1 -p "Press any key to exit..." && exit 1
   fi
 
   BACKUP_PATH="/tmp/backup-to-restore"
   rm -rf $BACKUP_PATH && mkdir -p $BACKUP_PATH
-  tar -C $BACKUP_PATH -zxf $BACKUP_TAR_PATH root/BTCPayNode/node_configuration_script.sh
+
+  # Extract the node backup info
+  BACKUP_INFO_PATH="root/BTCPayNode/node_backup_info"
+  tar -C $BACKUP_PATH -zxf $BACKUP_TAR_PATH $BACKUP_INFO_PATH
   if [ $? -ne 0 ]
   then
-    echo "Error in the extraction of the node configuration."
+    echo "ERROR: cannot extract of the node backup info."
     read -n1 -p "Press any key to exit..." && exit 1
   fi
 
-  NBITCOIN_NETWORK=$(cat /tmp/backup-to-restore/root/BTCPayNode/node_configuration_script.sh | grep -oP "NBITCOIN_NETWORK=\K(.*)$")
-  LIGHTNING_ALIAS=$(cat /tmp/backup-to-restore/root/BTCPayNode/node_configuration_script.sh | grep -oP "LIGHTNING_ALIAS=\K(.*)$")
-  BTCPAY_HOST=$(cat /tmp/backup-to-restore/root/BTCPayNode/node_configuration_script.sh | grep -oP "BTCPAY_HOST=\K(.*)$")
+  # Calculate the backup version
+  NODE_BACKUP_INFO_VERSION=$(grep BACKUP_INFO_VERSION $BACKUP_PATH/$BACKUP_INFO_PATH | cut -d '=' -f2)
+  BACKUP_VERSION=2
+  case $NODE_BACKUP_INFO_VERSION in
+    1 ) 
+      GIT_BRANCH=$(grep GIT_BRANCH $BACKUP_PATH/$BACKUP_INFO_PATH | cut -d '=' -f2)
+      case $GIT_BRANCH in
+        prod ) BACKUP_VERSION=1;;
+        * ) ;;
+      esac
+      ;;
+    * ) ;;
+  esac
+
+  echo "Backup decryption succesful, found backup version $BACKUP_VERSION. Extracting configuration..."
+
+  # Depending on the backup version, obtain the position of config script path
+  NODE_CONFIG_SCRIPT_PATH="root/BTCPayNode/node_configuration_script.sh"
+  case $BACKUP_VERSION in
+    1 ) NODE_CONFIG_SCRIPT_PATH="/var/lib/docker/opt/node_configuration_script.sh" ;;
+    * ) ;;
+  esac
+
+  # Extract the node configuration script
+  tar -C $BACKUP_PATH -zxf $BACKUP_TAR_PATH $NODE_CONFIG_SCRIPT_PATH
+  if [ $? -ne 0 ]
+  then
+    echo "ERROR: cannot extract of the node configuration."
+    read -n1 -p "Press any key to exit..." && exit 1
+  fi
+
+  NBITCOIN_NETWORK=$(cat $BACKUP_PATH/$NODE_CONFIG_SCRIPT_PATH | grep -oP "NBITCOIN_NETWORK=\K(.*)$")
+  LIGHTNING_ALIAS=$(cat $BACKUP_PATH/$NODE_CONFIG_SCRIPT_PATH | grep -oP "LIGHTNING_ALIAS=\K(.*)$")
+  BTCPAY_HOST=$(cat $BACKUP_PATH/$NODE_CONFIG_SCRIPT_PATH | grep -oP "BTCPAY_HOST=\K(.*)$")
 
   export BACKUP_TAR_PATH
+  export BACKUP_VERSION
   export NBITCOIN_NETWORK
   export LIGHTNING_ALIAS
   export BTCPAY_HOST
@@ -235,6 +271,19 @@ else
   # If we use a backup then we use the existing configuration script
   echo "Restoring backup ..."
   tar -xpzf $BACKUP_TAR_PATH -C / --numeric-owner --keep-newer-files --warning=no-ignore-newer
+  
+  case $BACKUP_VERSION in
+    1 )
+    # Perform migration from v1 backup to current version
+    mv /var/lib/docker/opt/node_configuration_script.sh /root/BTCPayNode/node_configuration_script.sh
+    ;;
+    2 )
+    # Perform migration from v2 backup to current version
+    ;;
+    * ) 
+    ;;
+  esac
+  
   echo "... Backup restored, starting with btcpay configuration!"
 fi
 

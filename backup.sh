@@ -7,8 +7,6 @@
 
 # This script might look like a good idea. Please be aware of these important issues:
 #
-# - The backup file is not encrypted and it contains your lightning private keys.
-#   Consider encrypting before uploading or using another backup tool like duplicity.
 # - Old channel state is toxic and you can loose all your funds, if you or someone
 #   else closes a channel based on the backup with old state - and the state changes
 #   often! If you publish an old state (say from yesterday's backup) on chain, you
@@ -91,7 +89,7 @@ backup_path_encrypted="$backup_dir/${filename_encrypted}"
 dbdump_path="$backup_dir/${dumpname}"
 mkcert_dir="/opt/mkcert"
 node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
-node_version_file_path="$BTCPAY_BASE_DIRECTORY/node_version_file"
+node_backup_info_path="$BTCPAY_BASE_DIRECTORY/node_backup_info"
 pihome_dir="/home/pi"
 ssh_dir="/root/.ssh"
 volumes_dir="$docker_dir/volumes"
@@ -104,10 +102,10 @@ GIT_REMOTE=$(git remote -v | grep origin | grep fetch |  awk -F " " '{print $2}'
 GIT_BRANCH=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
 GIT_TAG=$(git describe --exact-match --tags $(git log -n1 --pretty='%h') 2>&1)
 
-echo "FILE_VERSION=1
+echo "BACKUP_INFO_VERSION=1
 GIT_REMOTE=\"$GIT_REMOTE\"
 GIT_BRANCH=\"$GIT_BRANCH\"
-GIT_TAG=\"$GIT_TAG\"" > $node_version_file_path
+GIT_TAG=\"$GIT_TAG\"" > $node_backup_info_path
 
 # dump database
 echo "Dumping database …"
@@ -131,7 +129,7 @@ else
       --exclude="$pihome_dir/.pcsc10/*" \
       --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
-      $dbdump_path $mkcert_dir $node_config_path $node_version_file_path $pihome_dir $ssh_dir $volumes_dir
+      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $pihome_dir $ssh_dir $volumes_dir
 
     echo "Restarting BTCPay Server …"
     btcpay_up
