@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BTCPAY_CONFIG_FILE=/var/lib/docker/opt/node_configuration_script.sh
+BTCPAY_CONFIG_FILE=/root/BTCPayNode/node_configuration_script.sh
 
 OLD_STATS=`stat -c %Y "$BTCPAY_CONFIG_FILE"`
 
@@ -16,7 +16,7 @@ if [[ $NEW_STATS -gt $OLD_STATS ]] ; then
   while true; do
     read -p "Configuration modified, apply the new configuration now? Yes/No [No]: " yn
     case $yn in
-        Yes ) /root/BTCPayNode/configure.sh; break;;
+        Yes|yes|Y|y ) /root/BTCPayNode/configure.sh; break;;
         * ) break;;
     esac
   done

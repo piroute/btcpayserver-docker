@@ -18,7 +18,6 @@
   apt: 
     name: ['golang-{{versions.go}}-go']
     state: latest
-    update_cache: yes
 
 - name: Symlink go versioned executable to /usr/bin/go
   file:

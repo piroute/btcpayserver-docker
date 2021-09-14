@@ -5,8 +5,8 @@
   hosts: localhost
   connection: local
   
-  # Used only during development
-  # gather_facts: no
+  # Set to no only during development
+  gather_facts: yes
 
   vars_files:
     - vars/versions.yml
@@ -18,30 +18,36 @@
     - debug: 
         msg: "NBITCOIN_NETWORK = {{ lookup('env','NBITCOIN_NETWORK') }}"
 
+    - debug: 
+        msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
+
   roles: 
     - lnd-channels-backup
     - apps-in-the-terminal
     - app-electrum
+    - dhcpcd-with-docker
+    - mkcert-btcpay
 
   tasks:
-    # Cleanups from previous migrations
 
-    - name: Delete previous backups folder 
-      file:
-        state: absent
-        path: /home/backups
+    - name: Create a line in /etc/hosts for BTCPAY_HOST
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.1.1       {{ lookup('env','BTCPAY_HOST') }}"
 
-    - name: Delete previous apps folder 
-      file:
-        state: absent
-        path: /home/apps
+    - name: Change ownership of the apps folder to root (apps should not be modified)
+      ansible.builtin.file:
+        path: "{{paths.apps}}"
+        owner: root
+        group: root
+        mode: '0755'
+
+    # Changing ownership of the backups folder to pi (to delete old backups) is done by mounting options
 
     - name: Create a symbolic link to apps and backups
       ansible.builtin.file:
         src: "/opt/{{item}}"
         dest: "/home/pi/Desktop/{{item}}"
-        owner: pi
-        group: pi
         state: link
       with_items:
         - apps

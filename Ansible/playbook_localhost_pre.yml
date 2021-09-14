@@ -3,7 +3,12 @@
   hosts: localhost
   connection: local
 
-  tasks: []
+  pre_tasks:
+    - name: apt-get update with allow-releaseinfo-change
+      command:
+        cmd: apt-get update --allow-releaseinfo-change
 
-  roles: []
-
+    - name: Install node system dependencies
+      apt: 
+        name: ['jq']
+        state: present

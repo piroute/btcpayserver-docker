@@ -1,0 +1,5 @@
+- name: Copy dhcpcd.service to start after docker
+  copy:
+    src: dhcpcd.service
+    dest: /lib/systemd/system/dhcpcd.service
+    mode: '0644'

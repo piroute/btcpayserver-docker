@@ -4,6 +4,10 @@
 # Setting environment
 #
 
+export BTCPAYGEN_LIGHTNING="lnd"
+export BTCPAYGEN_CRYPTO1="btc"
+export BTCPAY_ENABLE_SSH=true
+export BTCPAYGEN_REVERSEPROXY="nginx"
 export BTCPAYGEN_ADDITIONAL_FRAGMENTS="opt-more-memory;opt-add-pihole;opt-add-electrs;opt-add-guacamole;$BTCPAYGEN_CUSTOM_FRAGMENTS"
 
 # ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
@@ -495,6 +499,7 @@ Requires=docker.service network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+TimeoutStopSec=$(($COMPOSE_HTTP_TIMEOUT+60))
 
 ExecStart=/bin/bash -c  '. \"$BASH_PROFILE_SCRIPT\" && cd \"\$BTCPAY_BASE_DIRECTORY/btcpayserver-docker\" && . helpers.sh && btcpay_up'
 ExecStop=/bin/bash -c   '. \"$BASH_PROFILE_SCRIPT\" && cd \"\$BTCPAY_BASE_DIRECTORY/btcpayserver-docker\" && . helpers.sh && btcpay_down'

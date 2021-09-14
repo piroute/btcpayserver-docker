@@ -3,7 +3,7 @@ Description=LND channels backup
 
 [Service]
 EnvironmentFile={{ lookup('env', 'BTCPAY_BASE_DIRECTORY') }}/.env
-ExecStart={{ lookup('env', 'BTCPAY_BASE_DIRECTORY') }}/btcpayserver-docker/Tools/lnd-channels-backup.sh
+ExecStart={{ lookup('env', 'BTCPAY_BASE_DIRECTORY') }}/btcpayserver-docker/Tools/lnd/lnd_channels_backup.sh
 Restart=always
 RestartSec=1
 StandardOutput=syslog
