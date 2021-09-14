@@ -1,6 +1,8 @@
 paths:
   apps: /opt/apps
   backups: /opt/backups
+  rpi_vault: /opt/rpi_vault
+  sda3_luks_keyfile: /opt/rpi_vault/sda3_luks_keyfile
 
 versions:
   chantools: v0.5.0

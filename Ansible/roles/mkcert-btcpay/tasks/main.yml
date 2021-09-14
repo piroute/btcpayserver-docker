@@ -1,0 +1,111 @@
+- name: Install wipe and libnss3-tools
+  apt: 
+    name: ['wipe', 'libnss3-tools']
+    state: present
+
+# Create the new working dir
+
+- name: Create mkcert working directory if it does not exist
+  file:
+    path: "{{mkcert_working_dir}}"
+    state: directory
+    mode: '0755'
+
+# Download of mkcert
+
+- name: Download mkcert
+  get_url:
+    url: https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-arm
+    checksum: sha256:15f04f23b3c8fcb3ac00ba089d87bb507b5b2283d42fbe2123e2c74eaa672527
+    dest: /usr/local/bin/mkcert
+    mode: '0755'
+
+# Create the certificate
+
+- name: Check that the btcpay certificate exists
+  stat:
+    path: "{{mkcert_certificate_file}}"
+  register: mkcert_certificate_result
+
+- name: Remove current mkcert working directory
+  file: 
+    path: "{{mkcert_working_dir}}"
+    state: absent
+  when: not mkcert_certificate_result.stat.exists
+
+- name: Recreate mkcert working directory
+  file:
+    path: "{{mkcert_working_dir}}"
+    state: directory
+    mode: '0755'
+  when: not mkcert_certificate_result.stat.exists
+
+- name: Create the mkcert certificates
+  shell: |
+    export CAROOT="{{mkcert_working_dir}}"
+    mkcert
+    mkcert "{{mkcert_hostname}}"
+  args:
+    executable: /bin/bash
+    chdir: "{{mkcert_working_dir}}"
+  when: not mkcert_certificate_result.stat.exists
+
+# Wipe the private key, so that no other certificate can be generated with same key (SKIP)
+
+# - name: Check that the root ca key exists
+#   stat:
+#     path: "{{mkcert_rootca_key}}"
+#   register: mkcert_rootca_key_result
+
+# - name: Wipe the root ca key
+#   shell: |
+#     wipe -f "{{mkcert_rootca_key}}"
+#   args:
+#     executable: /bin/bash
+#     chdir: "{{mkcert_working_dir}}"
+#   when: mkcert_rootca_key_result.stat.exists
+
+# The certificate needs to be installed for the pi user
+
+- name: Create mkcert working directory if it does not exist
+  file:
+    path: "/home/pi/mkcert"
+    state: directory
+    owner: pi
+    group: pi
+    mode: '0751'
+
+- name: Copy rootCA to pi home folder
+  copy: 
+    remote_src: True
+    src: "{{mkcert_rootca}}"
+    dest: /home/pi/mkcert/rootCA.pem
+    owner: pi
+    group: pi
+
+# Creates file in /usr/local/share/ca-certificates
+# Creates symlink in /etc/ssl/certs
+# Remove symlinks with sudo update-ca-certificates -f
+
+- name: Install the mkcert certificates for the pi user
+  shell: |
+    export CAROOT=/home/pi/mkcert
+    mkcert -install
+  become: Yes
+  become_user: pi
+  args:
+    executable: /bin/bash
+
+# Copy certificates to btcpayserver
+
+- name: Copy certificate to btcpayserver
+  copy: 
+    remote_src: True
+    src: "{{mkcert_certificate_file}}"
+    dest: "/var/lib/docker/volumes/generated_nginx_certs/_data/default.crt"
+
+- name: Copy certificate key to btcpayserver
+  copy: 
+    remote_src: True
+    src: "{{mkcert_certificate_key_file}}"
+    dest: "/var/lib/docker/volumes/generated_nginx_certs/_data/default.key"

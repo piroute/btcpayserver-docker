@@ -6,7 +6,6 @@
       'libusb-1.0-0-dev', 'libudev-dev'
     ]
     state: present
-    update_cache: yes
 
 - name: Create /opt/electrum if it does not exist
   file:

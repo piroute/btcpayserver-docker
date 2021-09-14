@@ -1,0 +1,148 @@
+- name: Configure localhost (PRE)
+  
+  hosts: localhost
+  connection: local
+
+  # TODO: Set to no only during development
+  gather_facts: no
+
+  vars_files:
+    - vars/versions.yml
+  
+  pre_tasks:
+  
+  # TODO: Add comments only during development
+  #   - name: apt-get update
+  #     apt:
+  #       update_cache: yes
+
+    - name: Create partitions
+      community.general.parted:
+        device: '/dev/sda'
+        number: 3
+        part_type: primary
+        part_start: 30031872s
+        part_end: 100%
+        state: present
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: "{{paths.rpi_vault}}"
+        state: directory
+        mode: '0700'
+        
+    - name: Create sda3_crypt_keyfile
+      ansible.builtin.shell: dd if=/dev/urandom of="{{paths.sda3_luks_keyfile}}" bs=1024 count=4
+      args:
+        creates: "{{paths.sda3_luks_keyfile}}"
+
+    - name: Change file ownership, group and permissions of sda3_crypt_keyfile
+      ansible.builtin.file:
+        path: "{{paths.sda3_luks_keyfile}}"
+        owner: root
+        group: root
+        mode: '0400'
+
+    - name: Create sda3 LUKS container (remains unchanged if it already exists)
+      community.crypto.luks_device:
+        device: "/dev/sda3"
+        cipher: "xchacha20,aes-adiantum-plain64"
+        keyfile: "{{paths.sda3_luks_keyfile}}"
+        state: "present"
+
+    - name: Open the LUKS container; name it "sda3_crypt"
+      community.crypto.luks_device:
+        device: "/dev/sda3"
+        name: "sda3_crypt"
+        keyfile: "{{paths.sda3_luks_keyfile}}"
+        state: "opened"
+    
+    - name: "Get UUID for partition"
+      ansible.builtin.shell: blkid -s UUID -o value /dev/sda3
+      register: disk_blkid
+      changed_when: False
+
+    - debug: var=disk_blkid.stdout
+
+    - name: Set the options explicitly a device which must already exist
+      community.general.crypttab:
+        backing_device: "UUID={{ disk_blkid.stdout }}"
+        name: sda3_crypt
+        password: "{{paths.sda3_luks_keyfile}}"
+        opts: luks
+        state: present
+
+    - name: Create a ext4 filesystem on sda3_crypt
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/mapper/sda3_crypt
+
+    - name: Create docker directory if it does not exist
+      ansible.builtin.file:
+        path: /var/lib/docker
+        state: directory
+
+    # TODO: chattr +i /var/lib/docker
+
+    - name: Mount /var/lib/docker
+      ansible.posix.mount:
+        path: /var/lib/docker
+        src: /dev/mapper/sda3_crypt
+        fstype: ext4
+        opts: defaults,noatime
+        state: mounted
+
+    #
+    # Setup the SD card
+    #
+
+    # TODO remove ignore_errors
+    - name: Create partitions on the microsd
+      community.general.parted:
+        device: '/dev/mmcblk0'
+        number: 1
+        part_type: primary
+        part_start: 0%
+        part_end: 100%
+        state: present
+      ignore_errors: yes
+    
+    # TODO remove ignore_errors
+    - name: Create a fat filesystem on the microsd
+      community.general.filesystem:
+        fstype: vfat
+        dev: /dev/mmcblk0p1
+      ignore_errors: yes
+    
+    # TODO remove ignore_errors
+    - name: Create backup directory if it does not exist
+      ansible.builtin.file:
+        path: "{{paths.backups}}"
+        state: directory
+      ignore_errors: yes
+
+    # TODO remove ignore_errors
+    - name: Mount backup directory
+      ansible.posix.mount:
+        path: "{{paths.backups}}"
+        src: /dev/mmcblk0p1
+        fstype: vfat
+        opts: defaults,noatime,nofail
+        state: mounted
+      ignore_errors: yes
+  
+    - name: Add btcpay config lines
+      lineinfile:
+        path: /root/BTCPayNode/node_configuration_script.sh
+        regexp: "{{item.regex}}"
+        line: "{{item.line}}"
+        create: yes
+      with_items:
+        - {line: "export NBITCOIN_NETWORK={{ lookup('env','NBITCOIN_NETWORK') }}", regex: "^export NBITCOIN_NETWORK="}
+        - {line: "export LIGHTNING_ALIAS={{ lookup('env','LIGHTNING_ALIAS') }}", regex: "^export LIGHTNING_ALIAS="}
+        - {line: "export BTCPAY_HOST={{ lookup('env','BTCPAY_HOST') }}", regex: "^export BTCPAY_HOST="}
+
+  roles:
+    - swap
+    - ufw
+    - utils
