@@ -1,6 +1,4 @@
 ﻿using System;
-using YamlDotNet;
-using YamlDotNet.Helpers;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -269,6 +267,12 @@ namespace DockerFileBuildHelper
                     dockerInfo.GitRef = $"dcg-latest";
                     dockerInfo.SupportedByUs = true;
                     break;
+                case "tallycoin_connect":
+                    dockerInfo.DockerFilePath = "Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/dennisreimann/tallycoin_connect";
+                    dockerInfo.GitRef = $"{image.Tag}";
+                    dockerInfo.SupportedByUs = false;
+                    break;
                 case "docker-bitcoingold":
                     dockerInfo.DockerFilePath = $"bitcoingold/{image.Tag}/Dockerfile";
                     dockerInfo.GitLink = "https://github.com/Vutov/docker-bitcoin";
@@ -380,6 +384,17 @@ namespace DockerFileBuildHelper
                     dockerInfo.SupportedByUs = true;
                     break;
                 }
+                case "bitcointaprootcc/0.21.0-bip8-lottrue":
+                {
+                    var tagNoRevision = image.Tag.Split('-').First();
+                    dockerInfo.DockerFilePath = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxamd64.Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxarm32v7.Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxarm64v8.Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/btcpayserver/dockerfile-deps";
+                    dockerInfo.GitRef = $"bitcointaprootcc/0.21.0-bip8-lottrue";
+                    dockerInfo.SupportedByUs = true;
+                    break;
+                }
                 case "elements":
                 {
                     var tagNoRevision = image.Tag.Split('-').First();
@@ -412,6 +427,14 @@ namespace DockerFileBuildHelper
                     dockerInfo.GitLink = "https://github.com/btcpayserver/btcpayserver";
                     // v1.0.5.4$<BTCPAY_BUILD_CONFIGURATION>
                     dockerInfo.GitRef = $"v{image.Tag.Substring(0, image.Tag.IndexOf('$'))}";
+                    dockerInfo.SupportedByUs = true;
+                    break;
+                case "rtl" when image.Tag != "0.10.0":
+                    dockerInfo.DockerFilePath = "docker/Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = "docker/Dockerfile.arm32v7";
+                    dockerInfo.DockerFilePathARM64v8 = "docker/Dockerfile.arm64v8";
+                    dockerInfo.GitLink = "https://github.com/Ride-The-Lightning/RTL";
+                    dockerInfo.GitRef = $"v{image.Tag}";
                     dockerInfo.SupportedByUs = true;
                     break;
                 case "rtl":
