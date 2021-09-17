@@ -154,12 +154,18 @@ btcpay_restart() {
 btcpay_dump_db() {
     pushd . > /dev/null
     cd "$(dirname "$BTCPAY_ENV_FILE")"
-    backup_dir="/var/lib/docker/volumes/backup_datadir/_data"
+    backup_dir="/var/lib/docker/opt/backups"
     if [ ! -d "$backup_dir" ]; then
-        docker volume create backup_datadir
+        mkdir -p $backup_dir
     fi
     local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
-    docker exec $(docker ps -a -q -f "name=postgres_1") pg_dumpall -c -U postgres > "$backup_dir/$filename"
+    POSTGRES_CONTAINER=$(docker ps -a -q -f "name=postgres_1")
+    if [ -z "$POSTGRES_CONTAINER" ] || [ $(docker container inspect -f '{{.State.Status}}' $POSTGRES_CONTAINER) != "running" ]; then
+        echo "Error: Cannot find postgres container to create dump, make sure btcpayserver is started" >&2
+        read -n1 -p "Press any key to exit..." && exit 1
+    else
+        docker exec $POSTGRES_CONTAINER pg_dumpall -c -U postgres > "$backup_dir/$filename"
+    fi
     popd > /dev/null
 }
 
@@ -178,6 +184,30 @@ ansible_install(){
         apt install ansible -y
     else
         echo "Okay, Ansible seems to be already installed!"
+    fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/community/general ]]
+    then
+        echo "Wait, Ansible community.general could not be found, installing..."
+        ansible-galaxy collection install community.general
+    else
+        echo "Okay, Ansible community.general collection seems to be already installed!"
+    fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/community/crypto ]]
+    then
+        echo "Wait, Ansible community.crypto could not be found, installing..."
+        ansible-galaxy collection install community.crypto
+    else
+        echo "Okay, Ansible community.crypto collection seems to be already installed!"
+    fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/ansible/posix ]]
+    then
+        echo "Wait, Ansible ansible.posix could not be found, installing..."
+        ansible-galaxy collection install ansible.posix
+    else
+        echo "Okay, Ansible ansible.posix collection seems to be already installed!"
     fi
 }
 
