@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+
+Type=Application
+
+Terminal=true
+
+Icon=/opt/icons/Terminal.svg
+
+Name=Btcpayserver Restart
+
+Exec=bash -c 'echo "Restarting btcpayserver, please wait a few minutes..." && sudo service btcpayserver restart && read -n1 -p "Btcpayserver restarted, press any key to exit..."'
