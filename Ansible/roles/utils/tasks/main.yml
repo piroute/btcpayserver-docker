@@ -1,0 +1,48 @@
+#
+# ll
+#
+
+- name: Set ll alias
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^alias ll='
+    line: alias ll='ls $LS_OPTIONS -lahi'
+
+#
+# Smartmontools
+# 
+
+- name: Remove smartmontools if installed
+  apt: 
+    name: ['smartmontools']
+    state: absent
+
+- name: Check if smartctl is installed
+  shell: smartctl -h
+  register: smartctl_exist
+  changed_when: smartctl_exist.rc != 0
+  ignore_errors: yes
+
+- name: Extract smartmontools-7.1.tar.gz into /root/smartmontools-7.1
+  unarchive:
+    src: smartmontools-7.1.tar.gz
+    dest: /root
+  when: smartctl_exist.rc != 0
+
+- name: configure smartmontools
+  shell:
+    cmd: ./configure
+    chdir: /root/smartmontools-7.1
+  when: smartctl_exist.rc != 0
+
+- name: make smartmontools
+  shell:
+    cmd: make
+    chdir: /root/smartmontools-7.1
+  when: smartctl_exist.rc != 0
+
+- name: install smartmontools
+  shell:
+    cmd: make install
+    chdir: /root/smartmontools-7.1
+  when: smartctl_exist.rc != 0

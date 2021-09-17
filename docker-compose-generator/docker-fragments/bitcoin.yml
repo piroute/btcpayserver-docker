@@ -38,3 +38,6 @@ services:
 volumes:
   bitcoin_datadir:
   bitcoin_wallet_datadir:
+
+exclusive:
+  - bitcoin-node 

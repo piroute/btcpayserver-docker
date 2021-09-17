@@ -70,6 +70,9 @@
     dest: "{{paths.apps}}/{{item}}"
     mode: '0755'
   with_items:
+    - BackupNode.desktop
+    - BtcpayserverRestart.desktop
+    - BtcpayserverStop.desktop
     - CheckSSDFilesystem.desktop
     - ChangeConfiguration.desktop
     - ChangePasswords.desktop
@@ -89,26 +92,27 @@
     repo: https://github.com/guggero/chantools.git
     dest: /opt/chantools
     version: "{{versions.chantools}}"
+  register: clone_chantools_repo
 
 - name: Make install chantools
   command: make install
   args:
     chdir: /opt/chantools
-    creates: /root/go/bin/chantools
+  when: clone_chantools_repo.changed
 
 - name: Manually create the initial virtualenv
   command:
     cmd: python3 -m venv /root/BTCPayNode/btcpayserver-docker/Tools/python/venv
     creates: "/root/BTCPayNode/btcpayserver-docker/Tools/python/venv/bin/python"
 
-- name: Install requirements
+- name: Install lnd_derivation_scheme python dependencies with pip
   pip: 
     requirements: /root/BTCPayNode/btcpayserver-docker/Tools/python/requirements.txt
     virtualenv: /root/BTCPayNode/btcpayserver-docker/Tools/python/venv
 
-- name: Make lnd-derivation-scheme.sh executable
+- name: Make lnd_derivation_scheme.sh executable
   file:
-    path: /root/BTCPayNode/btcpayserver-docker/Tools/lnd-derivation-scheme.sh
+    path: /root/BTCPayNode/btcpayserver-docker/Tools/lnd/lnd_derivation_scheme.sh
     mode: '0755'
 
 - name: Copy LndDerivationScheme.desktop file

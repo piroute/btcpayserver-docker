@@ -12,7 +12,7 @@ services:
         rpcauth=electrs:29b2fae539626e8bac1a1486de38164e$$32e907cec3853446590f0f5e794b3473640250c155d76bcbf0339a904f0b1cbf
   electrs:
     image: gradientskier/electrs:v0.8.6
-    entrypoint: electrs -vvvv --index-batch-size=10 --jsonrpc-import --timestamp --db-dir /home/user/db
+    entrypoint: electrs -v --index-batch-size=10 --jsonrpc-import --timestamp --db-dir /home/user/db
     restart: unless-stopped
     healthcheck:
       disable: true

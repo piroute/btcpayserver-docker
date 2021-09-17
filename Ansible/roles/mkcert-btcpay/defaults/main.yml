@@ -1,0 +1,8 @@
+mkcert_hostname: "{{ lookup('env','BTCPAY_HOST') }}"
+
+mkcert_working_dir: /opt/mkcert
+
+mkcert_rootca: /opt/mkcert/rootCA.pem
+mkcert_rootca_key: /opt/mkcert/rootCA-key.pem
+mkcert_certificate_file: /opt/mkcert/{{mkcert_hostname}}.pem
+mkcert_certificate_key_file: /opt/mkcert/{{mkcert_hostname}}-key.pem

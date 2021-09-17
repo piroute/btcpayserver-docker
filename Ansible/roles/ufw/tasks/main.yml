@@ -1,0 +1,28 @@
+- name: Install ufw (firewall) and fail2ban (ban invalid ssh login attempts)
+  apt: 
+    name: ['ufw', 'fail2ban']
+    state: present
+
+- name: ufw default deny incoming
+  shell: ufw default deny incoming
+
+- name: ufw default allow outgoing
+  shell: ufw default allow outgoing
+
+- name: ufw allow ssh
+  shell: ufw allow ssh
+
+- name: ufw allow http
+  shell: ufw allow http
+
+- name: ufw allow https
+  shell: ufw allow https
+
+- name: ufw allow dns
+  shell: ufw allow dns
+
+- name: ufw allow remote desktop
+  shell: ufw allow 3389/tcp
+
+- name: ufw enable
+  shell: ufw --force enable

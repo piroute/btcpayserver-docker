@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+
+Type=Application
+
+Terminal=true
+
+Icon=/opt/icons/Terminal.svg
+
+Name=Btcpayserver Stop
+
+Exec=bash -c 'echo "Stopping btcpayserver, please wait a few minutes..." && sudo service btcpayserver stop && read -n1 -p "Btcpayserver stopped, press any key to exit..."'
