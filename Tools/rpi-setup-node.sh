@@ -247,9 +247,17 @@ echo ""
 
 . helpers.sh
 ansible_install
+if [ $? -ne 0 ]; then
+  echo "ERROR: cannot install ansible, check that your internet connection is stable."
+  read -n1 -p "Press any key to exit..." && exit 1
+fi
 
 cd /root/BTCPayNode/btcpayserver-docker/Ansible
 ansible-playbook -i hosts playbook_localhost_setup.yml
+if [ $? -ne 0 ]; then
+  echo "ERROR: first ansible setup failed."
+  read -n1 -p "Press any key to exit..." && exit 1
+fi
 
 #
 # Btcpay configuration
