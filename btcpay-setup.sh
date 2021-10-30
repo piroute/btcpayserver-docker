@@ -1,27 +1,9 @@
 #!/bin/bash
 
-#
-# Setting environment
-#
+set -e
 
-export BTCPAYGEN_LIGHTNING="lnd"
-export BTCPAYGEN_CRYPTO1="btc"
-export BTCPAY_ENABLE_SSH=true
-export BTCPAYGEN_REVERSEPROXY="nginx"
-export BTCPAYGEN_ADDITIONAL_FRAGMENTS="opt-more-memory;opt-add-pihole;opt-add-electrs;opt-add-guacamole;$BTCPAYGEN_CUSTOM_FRAGMENTS"
-
-# ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
-if [ $NBITCOIN_NETWORK == "mainnet" ]; then
-    export ELECTRS_NETWORK="bitcoin"
-else
-    export ELECTRS_NETWORK=$NBITCOIN_NETWORK
-fi
-
-#
-# End setting environment
-#
-
-set +x
+# GS_SPECIFIC
+. btcpay-environment.sh
 
 if [[ "$0" = "$BASH_SOURCE" ]]; then
     echo "This script must be sourced \". btcpay-setup.sh\"" 
@@ -294,7 +276,7 @@ btcpay_expand_variables
 
 cd "$ORIGINAL_DIRECTORY"
 
-# Ansible initial configuration
+# GS_SPECIFIC Ansible initial configuration
 # Added here because env variables are configured and helpers.sh was just imported
 ansible_pre_configure
 
@@ -583,5 +565,5 @@ install_tooling
 
 cd $ORIGINAL_DIRECTORY
 
-# Ansible post configuration (containers already started)
+# GS_SPECIFIC Ansible post configuration (containers already started)
 ansible_post_configure
