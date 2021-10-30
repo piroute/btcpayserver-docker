@@ -2,6 +2,8 @@
 
 set -e
 
+# Load existing environment
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
 	# Mac OS
 	BASH_PROFILE_SCRIPT="$HOME/btcpay-env.sh"
@@ -12,6 +14,10 @@ else
 fi
 
 . ${BASH_PROFILE_SCRIPT}
+
+# GS_SPECIFIC Force and override mandatory btcpay-environment
+. btcpay-environment.sh
+# GS_SPECIFIC end
 
 if [ ! -z $BTCPAY_DOCKER_COMPOSE ] && [ ! -z $DOWNLOAD_ROOT ] && [ -z $BTCPAYGEN_OLD_PREGEN ]; then 
     echo "Your deployment is too old, you need to migrate by following instructions on this link https://github.com/btcpayserver/btcpayserver-docker/tree/master#i-deployed-before-btcpay-setupsh-existed-before-may-17-can-i-migrate-to-this-new-system"
@@ -30,6 +36,12 @@ if [[ "$1" != "--skip-git-pull" ]]; then
     exec "btcpay-update.sh" --skip-git-pull
     return
 fi
+
+. helpers.sh
+
+# GS_SPECIFIC Ansible initial configuration
+ansible_pre_configure
+# GS_SPECIFIC end
 
 if ! [ -f "/etc/docker/daemon.json" ] && [ -w "/etc/docker" ]; then
     echo "{
@@ -76,5 +88,6 @@ btcpay_up
 set +e
 docker image prune -af --filter "label!=org.btcpayserver.image=docker-compose-generator"
 
-# Ansible post configuration (containers already started)
+# GS_SPECIFIC Ansible post configuration (containers already started)
 ansible_post_configure
+# GS_SPECIFIC end
