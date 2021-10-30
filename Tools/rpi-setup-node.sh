@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# If the return code of one command is not 0 and the caller does not check it, the shell script will exit. 
+set -e
+
 preliminary_checks() {
   if [ "$(id -u)" != "0" ]; then
       echo "This script must be run as root."
