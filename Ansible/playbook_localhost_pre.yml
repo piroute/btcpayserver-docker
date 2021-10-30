@@ -6,6 +6,9 @@
   connection: local
 
   pre_tasks:
+    - debug: 
+        msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
+
     # Taken from fix libseccomp2 ----
     # https://blog.samcater.com/fix-workaround-rpi4-docker-libseccomp2-docker-20/   
 
