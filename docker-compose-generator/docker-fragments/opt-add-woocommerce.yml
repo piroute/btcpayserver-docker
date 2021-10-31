@@ -2,7 +2,7 @@ version: '3'
 
 services:
   woocommerce:
-    image: btcpayserver/docker-woocommerce:3.0.14
+    image: gradientskier/docker-woocommerce:3.0.6-wordpress-5.5.3-php-7.4.12
     environment:
       WOOCOMMERCE_HOST: ${WOOCOMMERCE_HOST}
       WORDPRESS_DB_HOST: mariadb
@@ -20,7 +20,7 @@ services:
       - "woocommerce_html:/var/www/html"
 
   mariadb:
-    image: mariadb:10.3
+    image: linuxserver/mariadb:10.5.12
     environment:
       MYSQL_ROOT_PASSWORD: wordpressdb
       MYSQL_DATABASE: wordpress
@@ -29,7 +29,7 @@ services:
     expose:
       - "3306"
     volumes:
-      - "mariadb_datadir:/var/lib/mysql"
+      - "mariadb_datadir:/config"
 
   btcpayserver:
     environment:
