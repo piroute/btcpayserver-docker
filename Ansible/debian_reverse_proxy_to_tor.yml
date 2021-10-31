@@ -1,0 +1,22 @@
+# ansible-playbook -i hosts debian_reverse_proxy_to_tor.yml
+
+# Automating the procedure described here
+# https://docs.btcpayserver.org/Deployment/ReverseProxyToTor/#reverse-proxy-to-tor
+
+- name: Configure reverse proxy to tor on a Debian 11
+  
+  hosts: localhost
+  connection: local
+
+  pre_tasks:
+    - debug: 
+        msg: "ONION_ADDRESS = {{ lookup('env','ONION_ADDRESS') }}"
+  
+    - name: apt-get update
+      apt:
+        update_cache: yes  
+  
+  roles:
+    - nginx-reverse-proxy-to-tor
+
+  tasks: []

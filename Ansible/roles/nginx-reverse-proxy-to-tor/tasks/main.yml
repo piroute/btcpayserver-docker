@@ -1,0 +1,23 @@
+- name: Install requirements
+  apt: 
+    name: ['certbot', 'nginx', 'socat', 'tor']
+    state: present
+
+- name:  Create the service file /lib/systemd/system/http-to-socks-proxy@.service
+  template:
+    src: http-to-socks-proxy@.service
+    dest: "/lib/systemd/system/http-to-socks-proxy@.service"
+    mode: '0644'
+
+- name: Create /etc/http-to-socks-proxy directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/http-to-socks-proxy
+    state: directory
+    mode: '0755'
+
+- name:  Create the configuration for the service in /etc/http-to-socks-proxy/btcpayserver.conf
+  template:
+    src: btcpayserver.conf
+    dest: "/etc/http-to-socks-proxy/btcpayserver.conf"
+    mode: '0644'
+    
