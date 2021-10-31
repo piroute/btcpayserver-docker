@@ -10,13 +10,14 @@
 
   pre_tasks:
     - debug: 
-        msg: "ONION_ADDRESS = {{ lookup('env','ONION_ADDRESS') }}"
-  
+        msg: "proxy_to_tor_hosts = {{ proxy_to_tor_hosts }}"
+
     - name: apt-get update
       apt:
         update_cache: yes  
   
   roles:
-    - nginx-reverse-proxy-to-tor
+    - role: nginx-reverse-proxy-to-tor
+      proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
 
   tasks: []
