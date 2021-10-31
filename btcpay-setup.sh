@@ -116,6 +116,7 @@ END
 }
 START=""
 HAS_DOCKER=true
+PLAY_ANSIBLE=true
 STARTUP_REGISTER=true
 SYSTEMD_RELOAD=true
 while (( "$#" )); do
@@ -135,6 +136,10 @@ while (( "$#" )); do
       ;;
     --no-startup-register)
       STARTUP_REGISTER=false
+      shift 1
+      ;;
+    --no-ansible)
+      PLAY_ANSIBLE=false
       shift 1
       ;;
     --no-systemd-reload)
@@ -280,7 +285,11 @@ cd "$ORIGINAL_DIRECTORY"
 
 # GS_SPECIFIC Ansible initial configuration
 # Added here because env variables are configured and helpers.sh was just imported
-ansible_pre_configure
+if $PLAY_ANSIBLE; then
+    ansible_pre_configure
+else
+    echo "Info: not playing ansible_pre_configure"
+fi
 
 echo "
 -------SETUP-----------
@@ -570,4 +579,8 @@ install_tooling
 cd $ORIGINAL_DIRECTORY
 
 # GS_SPECIFIC Ansible post configuration (containers already started)
-ansible_post_configure
+if $PLAY_ANSIBLE; then
+    ansible_post_configure
+else
+    echo "Info: not playing ansible_post_configure"
+fi
