@@ -6,7 +6,7 @@
 - name:  Create the service file /lib/systemd/system/http-to-socks-proxy@.service
   template:
     src: http-to-socks-proxy@.service
-    dest: "/lib/systemd/system/http-to-socks-proxy@.service"
+    dest: "/etc/systemd/system/http-to-socks-proxy@.service"
     mode: '0644'
 
 - name: Create /etc/http-to-socks-proxy directory if it does not exist
@@ -20,4 +20,78 @@
     src: btcpayserver.conf
     dest: "/etc/http-to-socks-proxy/btcpayserver.conf"
     mode: '0644'
-    
+
+- name: Symlink go versioned executable to /usr/bin/go
+  file:
+    src: "/etc/systemd/system/http-to-socks-proxy@.service"
+    dest: "/etc/systemd/system/multi-user.target.wants/http-to-socks-proxy@btcpayserver.service"
+    state: link
+
+- name: Start and enable http-to-socks-proxy@btcpayserver
+  systemd: 
+    name: http-to-socks-proxy@btcpayserver
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+# Webserver setup
+
+## Prepare SSL and Let's Encrypt
+
+- name: Generate 4096 bit DH params to strengthen the security, may take a while
+  ansible.builtin.shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+  args:
+    creates: /etc/ssl/certs/dhparam.pem
+
+- name: Create directory for Let's Encrypt files (1/2)
+  ansible.builtin.file:
+    path: /var/lib/letsencrypt
+    state: directory
+    group: www-data
+    mode: u=rwx,g=rwx,o=rx,g+s
+
+- name: Create directory for Let's Encrypt files (1/2)
+  ansible.builtin.file:
+    path: /var/lib/letsencrypt/.well-known
+    state: directory
+    mode: u=rwx,g=rwx,o=rx,g+s
+
+# nginx configuration: http
+
+- name:  Create a variable mapping to forward the correct protocol setting and check if the Upgrade header is sent by the client
+  template:
+    src: "nginx/map.conf"
+    dest: "/etc/nginx/conf.d/map.conf"
+
+- name:  Create a config file for the domain with http only
+  template:
+    src: "nginx/btcpayserver_before_certificate.conf"
+    dest: "/etc/nginx/sites-available/btcpayserver.conf"
+
+- name: Enable the web server config by creating a symlink...
+  file:
+    src: "/etc/nginx/sites-available/btcpayserver.conf"
+    dest: "/etc/nginx/sites-enabled/btcpayserver.conf"
+    state: link
+
+- name: ...And restarting nginx
+  systemd: 
+    name: nginx
+    state: restarted
+
+# Obtain SSL certificate via Let's Encrypt
+
+- name: Obtain SSL certificate via Let's Encrypt
+  ansible.builtin.shell: "certbot certonly --agree-tos --email {{ENV_EMAIL_ADDRESS}} --webroot -w /var/lib/letsencrypt/ -d {{ENV_DOMAIN_ADDRESS}}"
+  args:
+    creates: /etc/letsencrypt/live/{{ ENV_DOMAIN_ADDRESS }}/privkey.pem
+
+- name:  Create a config file for the domain with https
+  template:
+    src: "nginx/btcpayserver_after_certificate.conf"
+    dest: "/etc/nginx/sites-available/btcpayserver.conf"
+
+- name: Restart nginx once more
+  systemd: 
+    name: nginx
+    state: restarted

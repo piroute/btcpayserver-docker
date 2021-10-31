@@ -1,1 +1,3 @@
-onion_address: "{{ lookup('env','ONION_ADDRESS') }}"
+ENV_ONION_ADDRESS: "{{ lookup('env','ONION_ADDRESS') }}"
+ENV_DOMAIN_ADDRESS: "{{ lookup('env','DOMAIN_ADDRESS') }}"
+ENV_EMAIL_ADDRESS: "{{ lookup('env','EMAIL_ADDRESS') }}"
