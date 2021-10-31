@@ -30,7 +30,7 @@
 - name: Start and enable http-to-socks-proxy@btcpayserver
   systemd: 
     name: http-to-socks-proxy@btcpayserver
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes
 
