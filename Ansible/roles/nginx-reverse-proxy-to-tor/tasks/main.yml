@@ -1,3 +1,6 @@
+- debug: 
+    msg: "proxy_to_tor_hosts = {{ proxy_to_tor_hosts }}"
+
 - name: Install requirements
   apt: 
     name: ['certbot', 'nginx', 'socat', 'tor']
@@ -15,24 +18,29 @@
     state: directory
     mode: '0755'
 
-- name:  Create the configuration for the service in /etc/http-to-socks-proxy/btcpayserver.conf
+- name:  Create the configuration for the service in /etc/http-to-socks-proxy/{{item.proxy_sink}}.conf
   template:
     src: btcpayserver.conf
-    dest: "/etc/http-to-socks-proxy/btcpayserver.conf"
+    dest: "/etc/http-to-socks-proxy/{{item.proxy_sink}}.conf"
     mode: '0644'
+  loop: "{{proxy_to_tor_hosts}}"
+  loop_control:
+    index_var: idx
 
 - name: Symlink go versioned executable to /usr/bin/go
   file:
     src: "/etc/systemd/system/http-to-socks-proxy@.service"
-    dest: "/etc/systemd/system/multi-user.target.wants/http-to-socks-proxy@btcpayserver.service"
+    dest: "/etc/systemd/system/multi-user.target.wants/http-to-socks-proxy@{{item.proxy_sink}}.service"
     state: link
+  loop: "{{proxy_to_tor_hosts}}"
 
-- name: Start and enable http-to-socks-proxy@btcpayserver
+- name: Start and enable http-to-socks-proxy@{{item.proxy_sink}}
   systemd: 
-    name: http-to-socks-proxy@btcpayserver
+    name: http-to-socks-proxy@{{item.proxy_sink}}
     state: restarted
     enabled: yes
     daemon_reload: yes
+  loop: "{{proxy_to_tor_hosts}}"
 
 # Webserver setup
 
@@ -82,9 +90,10 @@
 # Obtain SSL certificate via Let's Encrypt
 
 - name: Obtain SSL certificate via Let's Encrypt
-  ansible.builtin.shell: "certbot certonly --agree-tos --email {{ENV_EMAIL_ADDRESS}} --webroot -w /var/lib/letsencrypt/ -d {{ENV_DOMAIN_ADDRESS}}"
+  ansible.builtin.shell: "certbot certonly --agree-tos --email {{item.email}} --webroot -w /var/lib/letsencrypt/ -d {{ item.proxy_sink }}"
   args:
-    creates: /etc/letsencrypt/live/{{ ENV_DOMAIN_ADDRESS }}/privkey.pem
+    creates: /etc/letsencrypt/live/{{ item.proxy_sink }}/privkey.pem
+  loop: "{{proxy_to_tor_hosts}}"
 
 - name:  Create a config file for the domain with https
   template:
