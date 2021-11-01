@@ -588,8 +588,9 @@ server {
 	listen [::]:443 ssl http2 {{ $default_server }};
 	{{ end }}
 	access_log /var/log/nginx/access.log vhost;
-	{{/* Enable usage of self-signed SSL certificate if .local hostname */}}
-	{{ if hasSuffix "local" $host }}
+	{{/* GS_SPECIFIC was: Enable usage of self-signed SSL certificate if .local hostname */}}
+	{{/* GS_SPECIFIC was: if hasSuffix "local" $host */}}
+	{{ if true }}
 	{{ if eq $network_tag "internal" }}
 	# Only allow traffic from internal clients
 	include /etc/nginx/network_internal.conf;
