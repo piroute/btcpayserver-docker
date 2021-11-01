@@ -13,8 +13,8 @@ SWAP_FILE_PATH=$( cat /etc/dphys-swapfile | grep ^CONF_SWAPFILE | awk '{print $1
 echo "Swapfile is at $SWAP_FILE_PATH"
 
 DOCKER_MOUNTPOINT="/var/lib/docker"
-DOCKER_UUID=$( cat /etc/fstab | grep $DOCKER_MOUNTPOINT | awk '{print $1}' | sed -r 's/^UUID=([0-9a-fA-F-]{36})$/\1/' )
-echo "Docker volumes are mounted at $DOCKER_MOUNTPOINT, the drive has UUID $DOCKER_UUID"
+DOCKER_DEVICE=$( cat /etc/fstab | grep $DOCKER_MOUNTPOINT | awk '{print $1}')
+echo "Docker volumes are mounted at $DOCKER_MOUNTPOINT, and the drive is at $DOCKER_DEVICE"
 
 # HOME_MOUNTPOINT="/home"
 # HOME_UUID=$( cat /etc/fstab | grep $HOME_MOUNTPOINT | awk '{print $1}' | sed -r 's/^UUID=([0-9a-fA-F-]{36})$/\1/' )
@@ -35,14 +35,17 @@ service docker stop
 echo "Unmounting $DOCKER_MOUNTPOINT..."
 umount $DOCKER_MOUNTPOINT
 
-echo "Checking filesystem at /dev/disk/by-uuid/$DOCKER_UUID..."
-fsck -f /dev/disk/by-uuid/$DOCKER_UUID
+echo "Checking filesystem at $DOCKER_DEVICE..."
+fsck -f $DOCKER_DEVICE
 
 echo "Mounting $DOCKER_MOUNTPOINT..."
 mount $DOCKER_MOUNTPOINT
 
 echo "Starting docker..."
 service docker start
+
+echo "Restarting dhcpcd..."
+service dhcpcd restart
 
 echo "Starting btcpayserver..."
 service btcpayserver start
