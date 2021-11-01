@@ -1,3 +1,6 @@
+- debug: 
+    msg: "mkcert will generate certificates for: {{ mkcert_hostnames }}"
+
 - name: Install wipe and libnss3-tools
   apt: 
     name: ['wipe', 'libnss3-tools']
@@ -22,33 +25,30 @@
 
 # Create the certificate
 
-- name: Check that the btcpay certificate exists
-  stat:
-    path: "{{mkcert_certificate_file}}"
-  register: mkcert_certificate_result
-
-- name: Remove current mkcert working directory
-  file: 
-    path: "{{mkcert_working_dir}}"
-    state: absent
-  when: not mkcert_certificate_result.stat.exists
-
 - name: Recreate mkcert working directory
   file:
     path: "{{mkcert_working_dir}}"
     state: directory
     mode: '0755'
-  when: not mkcert_certificate_result.stat.exists
+
+- name: Remove current mkcert certificate file
+  file: 
+    path: "{{mkcert_certificate_file}}"
+    state: absent
+
+- name: Remove current mkcert key file
+  file: 
+    path: "{{mkcert_certificate_key_file}}"
+    state: absent
 
 - name: Create the mkcert certificates
   shell: |
     export CAROOT="{{mkcert_working_dir}}"
     mkcert
-    mkcert "{{mkcert_hostname}}"
+    mkcert -cert-file default.crt -key-file default.key {{mkcert_hostnames}}
   args:
     executable: /bin/bash
     chdir: "{{mkcert_working_dir}}"
-  when: not mkcert_certificate_result.stat.exists
 
 # Wipe the private key, so that no other certificate can be generated with same key (SKIP)
 
@@ -67,7 +67,7 @@
 
 # The certificate needs to be installed for the pi user
 
-- name: Create mkcert working directory if it does not exist
+- name: Create mkcert pi directory if it does not exist
   file:
     path: "/home/pi/mkcert"
     state: directory
@@ -96,16 +96,21 @@
   args:
     executable: /bin/bash
 
-# Copy certificates to btcpayserver
+# Copy certificates to btcpayserver nginx
 
-- name: Copy certificate to btcpayserver
+- name: Copy certificate to btcpayserver nginx
   copy: 
     remote_src: True
     src: "{{mkcert_certificate_file}}"
     dest: "/var/lib/docker/volumes/generated_nginx_certs/_data/default.crt"
 
-- name: Copy certificate key to btcpayserver
+- name: Copy certificate key to btcpayserver nginx
   copy: 
     remote_src: True
     src: "{{mkcert_certificate_key_file}}"
     dest: "/var/lib/docker/volumes/generated_nginx_certs/_data/default.key"
+
+- name: Restart btcpayserver nginx container
+  shell: docker restart nginx
+  args:
+    executable: /bin/bash
