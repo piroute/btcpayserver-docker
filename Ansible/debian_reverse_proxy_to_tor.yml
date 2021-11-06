@@ -1,4 +1,14 @@
-# ansible-playbook -i hosts debian_reverse_proxy_to_tor.yml
+# Run with:
+# ansible-playbook -i hosts --extra-vars  "@../../proxy_to_tor_hosts.yml" debian_reverse_proxy_to_tor.yml
+
+# debian_reverse_proxy_to_tor.yml
+# proxy_to_tor_hosts:  
+#   - proxy_sink: something.domain.com
+#     proxy_source: something.onion
+#     email: email@domain.com
+#   - proxy_sink: btcpaydev.domain.com
+#     proxy_source: something.onion
+#     email: email@domain.com
 
 # Automating the procedure described here
 # https://docs.btcpayserver.org/Deployment/ReverseProxyToTor/#reverse-proxy-to-tor
@@ -20,4 +30,36 @@
     - role: nginx-reverse-proxy-to-tor
       proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
 
-  tasks: []
+  tasks:
+    # **** Add swap
+    - name: set swap_file variable
+      set_fact:
+        swap_file: /swapfile1G.swap
+
+    - name: check if swap file exists
+      stat:
+        path: "{{ swap_file }}"
+      register: swap_file_check
+
+    - name: create swap file
+      command: fallocate -l 1G {{ swap_file }}
+      when: not swap_file_check.stat.exists
+
+    - name: set permissions on swap file
+      file:
+        path: "{{ swap_file }}"
+        mode: 0600
+
+    - name: format swap file
+      command: mkswap {{ swap_file }}
+      when: not swap_file_check.stat.exists
+
+    - name: add to fstab
+      lineinfile:
+        dest: /etc/fstab
+        regexp: "{{ swap_file }}"
+        line: "{{ swap_file }} none swap sw 0 0"
+
+    - name: turn on swap
+      command: swapon -a
+    # Add swap end ****
