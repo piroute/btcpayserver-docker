@@ -1,9 +1,30 @@
+# ansible-playbook -i hosts playbook_localhost_pre.yml
+
 - name: Configure localhost (PRE)
   
   hosts: localhost
   connection: local
 
   pre_tasks:
+    - debug: 
+        msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
+
+    # Taken from fix libseccomp2 ----
+    # https://blog.samcater.com/fix-workaround-rpi4-docker-libseccomp2-docker-20/   
+
+    - name: Add apt keys of Buster Backports
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 04EE7237B7D453EC 
+
+    - name: Add apt keys of Buster Backports
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 648ACFD622F3D138 
+    
+    # ---- End of fix libseccomp2
+
+  tasks:
     - name: apt-get update with allow-releaseinfo-change
       command:
         cmd: apt-get update --allow-releaseinfo-change
@@ -12,3 +33,25 @@
       apt: 
         name: ['jq']
         state: present
+
+    # Taken from fix libseccomp2 ----
+    # https://blog.samcater.com/fix-workaround-rpi4-docker-libseccomp2-docker-20/   
+    
+    - name: Add debian backports repository
+      lineinfile:
+        path: /etc/apt/sources.list.d/debian-backports.list
+        regexp: "^deb "
+        line: "deb http://httpredir.debian.org/debian buster-backports main contrib non-free"
+        create: yes
+
+    - name: apt-get update
+      apt:
+        update_cache: yes
+
+    - name: Install libseccomp2
+      apt: 
+        name: ['libseccomp2']
+        default_release: buster-backports
+        state: latest
+    
+    # ---- End of fix libseccomp2

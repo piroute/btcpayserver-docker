@@ -56,7 +56,12 @@ fi
 #
 # opt-add-guacamole
 #
-if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* ]]; then
+if [[ -f Generated/guacamole/user-mapping.xml && $(find "Generated/guacamole/user-mapping.xml" -mtime +30 -print) ]]; then
+  # Force recreate of guacamole authentication keys if older than 30 days
+  echo "Guacamole configuration file exists and is older than 30 days, forcing recreation..."
+  rm Generated/guacamole/user-mapping.xml
+fi
+if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* && ! -f Generated/guacamole/user-mapping.xml ]]; then
     echo "Copying guacamole configuration files"
     mkdir -p Generated/guacamole
     cp Production/guacamole/user-mapping.xml Generated/guacamole/user-mapping.xml

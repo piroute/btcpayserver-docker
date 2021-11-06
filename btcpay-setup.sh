@@ -1,27 +1,9 @@
 #!/bin/bash
 
-#
-# Setting environment
-#
+set -e
 
-export BTCPAYGEN_LIGHTNING="lnd"
-export BTCPAYGEN_CRYPTO1="btc"
-export BTCPAY_ENABLE_SSH=true
-export BTCPAYGEN_REVERSEPROXY="nginx"
-export BTCPAYGEN_ADDITIONAL_FRAGMENTS="opt-more-memory;opt-add-pihole;opt-add-electrs;opt-add-guacamole;$BTCPAYGEN_CUSTOM_FRAGMENTS"
-
-# ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
-if [ $NBITCOIN_NETWORK == "mainnet" ]; then
-    export ELECTRS_NETWORK="bitcoin"
-else
-    export ELECTRS_NETWORK=$NBITCOIN_NETWORK
-fi
-
-#
-# End setting environment
-#
-
-set +x
+# GS_SPECIFIC
+. btcpay-environment.sh
 
 if [[ "$0" = "$BASH_SOURCE" ]]; then
     echo "This script must be sourced \". btcpay-setup.sh\"" 
@@ -128,10 +110,13 @@ Add-on specific variables:
     BTCTRANSMUTER_HOST: If btc transmuter is activated with opt-add-btctransmuter, the hostname of your btc transmuter website (eg. store.example.com)
     TOR_RELAY_NICKNAME: If tor relay is activated with opt-add-tor-relay, the relay nickname
     TOR_RELAY_EMAIL: If tor relay is activated with opt-add-tor-relay, the email for Tor to contact you regarding your relay
+    CHATWOOT_HOST: If chatwoot is activated with opt-add-chatwoot, the hostname of your chatwoot website (eg. store.example.com)
+    FIREFLY_HOST: If fireflyiii is activated with opt-add-fireflyiii, the hostname of your libre patron website (eg. firefly.example.com)
 END
 }
 START=""
 HAS_DOCKER=true
+PLAY_ANSIBLE=true
 STARTUP_REGISTER=true
 SYSTEMD_RELOAD=true
 while (( "$#" )); do
@@ -151,6 +136,10 @@ while (( "$#" )); do
       ;;
     --no-startup-register)
       STARTUP_REGISTER=false
+      shift 1
+      ;;
+    --no-ansible)
+      PLAY_ANSIBLE=false
       shift 1
       ;;
     --no-systemd-reload)
@@ -294,9 +283,13 @@ btcpay_expand_variables
 
 cd "$ORIGINAL_DIRECTORY"
 
-# Ansible initial configuration
+# GS_SPECIFIC Ansible initial configuration
 # Added here because env variables are configured and helpers.sh was just imported
-ansible_pre_configure
+if $PLAY_ANSIBLE; then
+    ansible_pre_configure
+else
+    echo "Info: not playing ansible_pre_configure"
+fi
 
 echo "
 -------SETUP-----------
@@ -311,6 +304,7 @@ LIBREPATRON_HOST:$LIBREPATRON_HOST
 ZAMMAD_HOST:$ZAMMAD_HOST
 WOOCOMMERCE_HOST:$WOOCOMMERCE_HOST
 BTCTRANSMUTER_HOST:$BTCTRANSMUTER_HOST
+CHATWOOT_HOST:$CHATWOOT_HOST
 BTCPAY_ENABLE_SSH:$BTCPAY_ENABLE_SSH
 BTCPAY_HOST_SSHKEYFILE:$BTCPAY_HOST_SSHKEYFILE
 LETSENCRYPT_EMAIL:$LETSENCRYPT_EMAIL
@@ -334,6 +328,7 @@ ACME_CA_URI:$ACME_CA_URI
 TOR_RELAY_NICKNAME: $TOR_RELAY_NICKNAME
 TOR_RELAY_EMAIL: $TOR_RELAY_EMAIL
 PIHOLE_SERVERIP: $PIHOLE_SERVERIP
+FIREFLY_HOST: $FIREFLY_HOST
 ----------------------
 Additional exported variables:
 BTCPAY_DOCKER_COMPOSE=$BTCPAY_DOCKER_COMPOSE
@@ -442,6 +437,17 @@ if ! [[ -x "$(command -v docker)" ]] || ! [[ -x "$(command -v docker-compose)" ]
         else
             echo "Unsupported architecture $(uname -m)"
             return
+        fi
+    fi
+
+    if [[ "$(uname -m)" == "armv7l" ]] && [[ "$(uname -n)" == "raspberrypi" ]]; then
+        if [[ "$(apt list libseccomp2 2>/dev/null)" == *"2.3.3"* ]]; then
+            echo "Outdated version of libseccomp2, updating... (see: https://blog.samcater.com/fix-workaround-rpi4-docker-libseccomp2-docker-20/)"
+            # https://blog.samcater.com/fix-workaround-rpi4-docker-libseccomp2-docker-20/
+            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC 648ACFD622F3D138
+            echo 'deb http://httpredir.debian.org/debian buster-backports main contrib non-free' | sudo tee -a /etc/apt/sources.list.d/debian-backports.list
+            apt update
+            apt install libseccomp2 -t buster-backports
         fi
     fi
 
@@ -583,5 +589,9 @@ install_tooling
 
 cd $ORIGINAL_DIRECTORY
 
-# Ansible post configuration (containers already started)
-ansible_post_configure
+# GS_SPECIFIC Ansible post configuration (containers already started)
+if $PLAY_ANSIBLE; then
+    ansible_post_configure
+else
+    echo "Info: not playing ansible_post_configure"
+fi
