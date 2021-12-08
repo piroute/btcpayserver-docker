@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# If the return code of one command is not 0 and the caller does not check it, the shell script will exit. 
-set -e
-
 preliminary_checks() {
   if [ "$(id -u)" != "0" ]; then
       echo "This script must be run as root."
@@ -311,6 +308,10 @@ chmod +x /root/BTCPayNode/configure.sh
 # Start configuration
 cd /root/BTCPayNode
 . ./configure.sh
+if [ $? -ne 0 ]; then
+  echo "ERROR: BTCPayNode configure failed."
+  read -n1 -p "Press any key to exit..." && exit 1
+fi
 
 #
 # Exit
