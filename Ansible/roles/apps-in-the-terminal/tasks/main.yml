@@ -1,0 +1,117 @@
+# Common to all tools
+
+- name: Create /opt/icons if it does not exist
+  file:
+    path: /opt/icons
+    state: directory
+    mode: '0755'
+
+- name: Copy icon files
+  copy:
+    src: "{{item}}"
+    dest: "/opt/icons/{{item}}"
+    mode: '0644'
+  with_items:
+    - Lock.png
+    - Shutdown.png
+    - Terminal.svg
+    - WiFi.png
+
+- name: Create apps directory if it does not exist
+  file:
+    path: "{{paths.apps}}"
+    state: directory
+    mode: '0755'
+
+#
+# WiFi Reset
+#
+
+- name: Copy WiFiReset.desktop file
+  template:
+    src: WiFiReset.desktop
+    dest: "{{paths.apps}}/WiFiReset.desktop"
+    mode: '0755'
+
+#
+# Lock Screen & Shutdown
+#
+
+- name: Copy LockScreen.desktop file
+  template:
+    src: LockScreen.desktop
+    dest: "{{paths.apps}}/LockScreen.desktop"
+    mode: '0755'
+
+- name: Copy Shutdown.desktop file
+  template:
+    src: Shutdown.desktop
+    dest: "{{paths.apps}}/Shutdown.desktop"
+    mode: '0755'
+
+#    
+# Rpi terminal apps
+#
+
+- name: Make .sh tools executable
+  file:
+    path: "/root/BTCPayNode/btcpayserver-docker/Tools/{{item}}"
+    mode: '0755'
+  with_items:
+    - rpi-check-filesystem.sh
+    - rpi-change-configuration.sh
+    - rpi-change-passwords.sh
+    - rpi-check-system-info.sh
+
+- name: Copy .desktop files
+  template:
+    src: "{{item}}"
+    dest: "{{paths.apps}}/{{item}}"
+    mode: '0755'
+  with_items:
+    - CheckSSDFilesystem.desktop
+    - ChangeConfiguration.desktop
+    - ChangePasswords.desktop
+    - CheckSystemInfo.desktop
+
+#
+# Lnd Derivations scheme
+#
+
+- name: Include go role
+  include_role:
+    name: go
+
+- name: Git clone chantools
+  git:
+    repo: https://github.com/guggero/chantools.git
+    dest: /opt/chantools
+    version: "{{versions.chantools}}"
+
+- name: Make install chantools
+  command: make install
+  args:
+    chdir: /opt/chantools
+    creates: /root/go/bin/chantools
+
+- name: Manually create the initial virtualenv
+  command:
+    cmd: python3 -m venv /root/BTCPayNode/btcpayserver-docker/Tools/python/venv
+    creates: "/root/BTCPayNode/btcpayserver-docker/Tools/python/venv/bin/python"
+
+- name: Install requirements
+  pip: 
+    requirements: /root/BTCPayNode/btcpayserver-docker/Tools/python/requirements.txt
+    virtualenv: /root/BTCPayNode/btcpayserver-docker/Tools/python/venv
+
+- name: Make lnd-derivation-scheme.sh executable
+  file:
+    path: /root/BTCPayNode/btcpayserver-docker/Tools/lnd-derivation-scheme.sh
+    mode: '0755'
+
+- name: Copy LndDerivationScheme.desktop file
+  template:
+    src: LndDerivationScheme.desktop
+    dest: "{{paths.apps}}/LndDerivationScheme.desktop"
+    mode: '0755'
+

@@ -1,11 +1,24 @@
+# ansible-playbook -i hosts playbook_localhost_post.yml
+
 - name: Configure localhost (POST)
   
   hosts: localhost
   connection: local
+  
+  # Used only during development
+  # gather_facts: no
+
+  vars_files:
+    - vars/versions.yml
 
   pre_tasks:
-    - debug: msg="BTCPAY_BASE_DIRECTORY = {{ lookup('env','BTCPAY_BASE_DIRECTORY') }}"
+    - debug: 
+        msg: "BTCPAY_BASE_DIRECTORY = {{ lookup('env','BTCPAY_BASE_DIRECTORY') }}"
+
+    - debug: 
+        msg: "NBITCOIN_NETWORK = {{ lookup('env','NBITCOIN_NETWORK') }}"
 
   roles: 
     - lnd-channels-backup
-
+    - app-electrum
+    - apps-in-the-terminal
