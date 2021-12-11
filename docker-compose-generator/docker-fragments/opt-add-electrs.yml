@@ -1,0 +1,35 @@
+version: "3"
+
+# Notes:
+# - In bitcoind environment rpcauth, escape the dollar sign with a double dollar
+# - ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
+# - ELECTRS_JSONRPC_IMPORT: true causes error: services.electrs.environment.ELECTRS_JSONRPC_IMPORT contains true, which is an invalid type, it should be a string, number, or a null
+
+services:
+  bitcoind:
+    environment:
+      BITCOIN_EXTRA_ARGS: |
+        rpcauth=electrs:29b2fae539626e8bac1a1486de38164e$$32e907cec3853446590f0f5e794b3473640250c155d76bcbf0339a904f0b1cbf
+  electrs:
+    image: gradientskier/electrs:v0.8.6
+    entrypoint: electrs -v --index-batch-size=10 --jsonrpc-import --timestamp --db-dir /home/user/db
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    ports:
+      - "127.0.0.1:50001:50001"
+    volumes:
+      - "electrs_datadir:/home/user"
+      - "./electrs.toml:/home/user/electrs.toml:ro"
+    environment:
+      ELECTRS_NETWORK: ${ELECTRS_NETWORK:?Please specify ELECTRS_NETWORK environment variable. The value must be either 'bitcoin', 'testnet' or 'regtest'.}
+      ELECTRS_DAEMON_RPC_ADDR: bitcoind:43782
+      ELECTRS_ELECTRUM_RPC_ADDR: 0.0.0.0:50001
+    depends_on:
+      - bitcoind
+
+volumes:
+  electrs_datadir:
+
+incompatible:
+  - pruning
