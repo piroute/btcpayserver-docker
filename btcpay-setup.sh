@@ -501,6 +501,7 @@ Requires=docker.service network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+TimeoutStopSec=$(($COMPOSE_HTTP_TIMEOUT+60))
 
 ExecStart=/bin/bash -c  '. \"$BASH_PROFILE_SCRIPT\" && cd \"\$BTCPAY_BASE_DIRECTORY/btcpayserver-docker\" && . helpers.sh && btcpay_up'
 ExecStop=/bin/bash -c   '. \"$BASH_PROFILE_SCRIPT\" && cd \"\$BTCPAY_BASE_DIRECTORY/btcpayserver-docker\" && . helpers.sh && btcpay_down'
