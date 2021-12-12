@@ -196,6 +196,30 @@ ansible_install(){
     else
         echo "Okay, Ansible seems to be already installed!"
     fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/community/general ]]
+    then
+        echo "Wait, Ansible community.general could not be found, installing..."
+        ansible-galaxy collection install community.general
+    else
+        echo "Okay, Ansible community.general collection seems to be already installed!"
+    fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/community/crypto ]]
+    then
+        echo "Wait, Ansible community.crypto could not be found, installing..."
+        ansible-galaxy collection install community.crypto
+    else
+        echo "Okay, Ansible community.crypto collection seems to be already installed!"
+    fi
+
+    if [[ ! -d /root/.ansible/collections/ansible_collections/ansible/posix ]]
+    then
+        echo "Wait, Ansible ansible.posix could not be found, installing..."
+        ansible-galaxy collection install ansible.posix
+    else
+        echo "Okay, Ansible ansible.posix collection seems to be already installed!"
+    fi
 }
 
 ansible_pre_configure() {
