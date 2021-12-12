@@ -14,3 +14,7 @@
       command:
         cmd: apt-get update --allow-releaseinfo-change
 
+    - name: Install node system dependencies
+      apt: 
+        name: ['jq']
+        state: present

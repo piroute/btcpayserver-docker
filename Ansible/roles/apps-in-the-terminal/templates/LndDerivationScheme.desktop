@@ -9,4 +9,4 @@ Icon=/opt/icons/Terminal.svg
 
 Name=Lnd Derivation Scheme
 
-Exec=bash -c 'sudo /root/BTCPayNode/btcpayserver-docker/Tools/lnd-derivation-scheme.sh'
+Exec=bash -c 'sudo /root/BTCPayNode/btcpayserver-docker/Tools/lnd/lnd_derivation_scheme.sh'
