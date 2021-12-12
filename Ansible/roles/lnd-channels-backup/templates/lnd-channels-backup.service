@@ -1,0 +1,16 @@
+[Unit]
+Description=LND channels backup
+
+[Service]
+EnvironmentFile={{ lookup('env', 'BTCPAY_BASE_DIRECTORY') }}/.env
+ExecStart={{ lookup('env', 'BTCPAY_BASE_DIRECTORY') }}/btcpayserver-docker/Tools/lnd-channels-backup.sh
+Restart=always
+RestartSec=1
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=lnd-channels-backup
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
