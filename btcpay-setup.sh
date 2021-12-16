@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# ELECTRS_NETWORK=bitcoin means mainnet. The value must be either 'bitcoin', 'testnet' or 'regtest'.
-if [ $NBITCOIN_NETWORK == "mainnet" ]; then
-    export ELECTRS_NETWORK="bitcoin"
-else
-    export ELECTRS_NETWORK=$NBITCOIN_NETWORK
-fi
+
+# GS_SPECIFIC
+. btcpay-environment.sh
 
 set +x
 
@@ -120,6 +117,7 @@ END
 }
 START=""
 HAS_DOCKER=true
+PLAY_ANSIBLE=true
 STARTUP_REGISTER=true
 SYSTEMD_RELOAD=true
 while (( "$#" )); do
@@ -139,6 +137,10 @@ while (( "$#" )); do
       ;;
     --no-startup-register)
       STARTUP_REGISTER=false
+      shift 1
+      ;;
+    --no-ansible)
+      PLAY_ANSIBLE=false
       shift 1
       ;;
     --no-systemd-reload)
@@ -282,9 +284,17 @@ btcpay_expand_variables
 
 cd "$ORIGINAL_DIRECTORY"
 
-# Ansible initial configuration
+# GS_SPECIFIC Ansible initial configuration
 # Added here because env variables are configured and helpers.sh was just imported
-ansible_pre_configure
+if $PLAY_ANSIBLE; then
+    ansible_pre_configure
+    if [ $? -ne 0 ]; then
+        echo "ERROR: ansible pre configure failed."
+        read -n1 -p "Press any key to exit..." && exit 1
+    fi
+else
+    echo "Info: not playing ansible_pre_configure"
+fi
 
 echo "
 -------SETUP-----------
@@ -368,6 +378,7 @@ export BTCPAYGEN_CRYPTO9=\"$BTCPAYGEN_CRYPTO9\"
 export BTCPAYGEN_LIGHTNING=\"$BTCPAYGEN_LIGHTNING\"
 export BTCPAYGEN_REVERSEPROXY=\"$BTCPAYGEN_REVERSEPROXY\"
 export BTCPAYGEN_ADDITIONAL_FRAGMENTS=\"$BTCPAYGEN_ADDITIONAL_FRAGMENTS\"
+export BTCPAYGEN_CUSTOM_FRAGMENTS=\"$BTCPAYGEN_CUSTOM_FRAGMENTS\"
 export BTCPAYGEN_EXCLUDE_FRAGMENTS=\"$BTCPAYGEN_EXCLUDE_FRAGMENTS\"
 export BTCPAY_DOCKER_COMPOSE=\"$BTCPAY_DOCKER_COMPOSE\"
 export BTCPAY_BASE_DIRECTORY=\"$BTCPAY_BASE_DIRECTORY\"
@@ -573,5 +584,13 @@ install_tooling
 
 cd $ORIGINAL_DIRECTORY
 
-# Ansible post configuration (containers already started)
-ansible_post_configure
+# GS_SPECIFIC Ansible post configuration (containers already started)
+if $PLAY_ANSIBLE; then
+    ansible_post_configure
+    if [ $? -ne 0 ]; then
+        echo "ERROR: ansible post configure failed."
+        read -n1 -p "Press any key to exit..." && exit 1
+    fi
+else
+    echo "Info: not playing ansible_post_configure"
+fi
