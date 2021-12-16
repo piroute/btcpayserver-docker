@@ -1,9 +1,16 @@
+# ansible-playbook -i hosts playbook_localhost_pre.yml
+
 - name: Configure localhost (PRE)
   
   hosts: localhost
   connection: local
 
-  tasks: []
+  pre_tasks:
+    - debug: 
+        msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
 
-  roles: []
+  tasks:
+    - name: apt-get update with allow-releaseinfo-change
+      command:
+        cmd: apt-get update --allow-releaseinfo-change
 
