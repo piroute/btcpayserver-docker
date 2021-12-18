@@ -124,12 +124,10 @@ else
       --exclude="$volumes_dir/generated_litecoin_datadir/_data/*" \
       --exclude="$volumes_dir/generated_electrs_datadir/_data/*" \
       --exclude="$volumes_dir/**/logs/*" \
-      --exclude="$pihome_dir/.cache" \
-      --exclude="$pihome_dir/.local/share/Trash" \
-      --exclude="$pihome_dir/.pcsc10" \
-      --exclude="$pihome_dir/thinclient_drives" \
       -czf $backup_path \
-      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $pihome_dir $ssh_dir $volumes_dir
+      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $volumes_dir \
+      $pihome_dir/Bookshelf $pihome_dir/Desktop $pihome_dir/Documents $pihome_dir/Downloads $pihome_dir/.electrum \
+      $pihome_dir/mkcert $pihome_dir/Music $pihome_dir/Pictures $pihome_dir/Public $pihome_dir/Templates $pihome_dir/Videos
 
     echo "Restarting BTCPay Server …"
     btcpay_up
