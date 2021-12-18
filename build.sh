@@ -60,9 +60,15 @@ if [[ -f Generated/guacamole/user-mapping.xml && $(find "Generated/guacamole/use
   # Force recreate of guacamole authentication keys if older than 30 days
   echo "Guacamole configuration file exists and is older than 30 days, forcing recreation..."
   rm Generated/guacamole/user-mapping.xml
+else
+  echo "Guacamole configuration file either does not exist or is newer than 30 days, do nothing..."
 fi
-if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* && ! -f Generated/guacamole/user-mapping.xml ]]; then
-    echo "Copying guacamole configuration files"
+
+if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* ]]; then
+  echo "Guacamole configuration started"
+
+  if [[ ! -f Generated/guacamole/user-mapping.xml ]]; then
+    echo "Guacamole recreate configuration files with a new password"
     mkdir -p Generated/guacamole
     cp Production/guacamole/user-mapping.xml Generated/guacamole/user-mapping.xml
     
@@ -73,4 +79,9 @@ if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* && ! -f Generated/gu
     
     # Always stop guacamole container upon configuration file change, otherwise changes are not read
     docker stop --time 1 generated_guacamole_1 || true
+  else
+    echo "Guacamole use already existing password"
+    GUACAMOLE_PASSWORD=$(grep -Po 'password=\"\K.+(?=\">)' Generated/guacamole/user-mapping.xml)
+    sed -i 's/username=USERNAME&password=PASSWORD/username=USERNAME\&password='$GUACAMOLE_PASSWORD'/' Generated/docker-compose.generated.yml
+  fi
 fi
