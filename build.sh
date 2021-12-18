@@ -48,3 +48,36 @@ if [ "$BTCPAYGEN_REVERSEPROXY" == "traefik" ]; then
     :> Generated/acme.json
     chmod 600 Generated/acme.json
 fi
+
+#
+# opt-add-guacamole
+#
+if [[ -f Generated/guacamole/user-mapping.xml && $(find "Generated/guacamole/user-mapping.xml" -mtime +30 -print) ]]; then
+  # Force recreate of guacamole authentication keys if older than 30 days
+  echo "Guacamole configuration file exists and is older than 30 days, forcing recreation..."
+  rm Generated/guacamole/user-mapping.xml
+else
+  echo "Guacamole configuration file either does not exist or is newer than 30 days, do nothing..."
+fi
+
+if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-guacamole* ]]; then
+  echo "Guacamole configuration started"
+
+  if [[ ! -f Generated/guacamole/user-mapping.xml ]]; then
+    echo "Guacamole recreate configuration files with a new password"
+    mkdir -p Generated/guacamole
+    cp Production/guacamole/user-mapping.xml Generated/guacamole/user-mapping.xml
+    
+    # Setup a random guacamole password
+    GUACAMOLE_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    sed -i 's/password="PASSWORD"/password="'$GUACAMOLE_PASSWORD'"/' Generated/guacamole/user-mapping.xml
+    sed -i 's/username=USERNAME&password=PASSWORD/username=USERNAME\&password='$GUACAMOLE_PASSWORD'/' Generated/docker-compose.generated.yml
+    
+    # Always stop guacamole container upon configuration file change, otherwise changes are not read
+    docker stop --time 1 generated_guacamole_1 || true
+  else
+    echo "Guacamole use already existing password"
+    GUACAMOLE_PASSWORD=$(grep -Po 'password=\"\K.+(?=\">)' Generated/guacamole/user-mapping.xml)
+    sed -i 's/username=USERNAME&password=PASSWORD/username=USERNAME\&password='$GUACAMOLE_PASSWORD'/' Generated/docker-compose.generated.yml
+  fi
+fi

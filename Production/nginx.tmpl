@@ -165,6 +165,13 @@
 		proxy_pass http://configurator;
 	}
 		{{ end }}
+
+		{{ if (eq $serviceName "guacamole") }}
+	location /guacamole/ {
+		proxy_pass http://guacamole:8080/guacamole/;
+	}
+		{{ end }}
+
 	{{ end }}
 	{{ end }}
 
