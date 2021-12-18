@@ -79,6 +79,7 @@ if [[ "$ACME_CA_URI" == "https://acme-staging.api.letsencrypt.org/directory" ]];
     echo "Info: Rewriting ACME_CA_URI from $original_acme to $ACME_CA_URI"
 fi
 
+docker_update
 install_tooling
 btcpay_update_docker_env
 btcpay_up
