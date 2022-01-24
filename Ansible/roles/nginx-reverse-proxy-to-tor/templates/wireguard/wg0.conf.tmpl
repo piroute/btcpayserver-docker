@@ -1,0 +1,13 @@
+[Interface]
+ListenPort = 37589
+Address = 10.200.200.1/24
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+PrivateKey = {{ lookup('file', paths.wireguard_keyfile ) }}
+
+{% for item in proxy_to_wireguard_hosts %}
+[Peer]
+PublicKey = {{ item.proxy_source_pubkey }}
+AllowedIPs = {{ item.proxy_source_ip }}
+
+{% endfor %}
