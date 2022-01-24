@@ -8,6 +8,6 @@ PrivateKey = {{ lookup('file', paths.wireguard_keyfile ) }}
 {% for item in proxy_to_wireguard_hosts %}
 [Peer]
 PublicKey = {{ item.proxy_source_pubkey }}
-AllowedIPs = {{ item.proxy_source_ip }}
+AllowedIPs = {{ item.proxy_source_ip }}/32
 
 {% endfor %}
