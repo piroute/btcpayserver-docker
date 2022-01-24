@@ -33,6 +33,17 @@
     src: wireguard/wg0.conf.tmpl
     dest: "/etc/wireguard/wg0.conf"
 
+# TODO FIX
+- name: Copy postup.sh
+  copy:
+    src: wireguard/wg0.conf.tmpl
+    dest: "/etc/wireguard/wg0.conf"
+
+- name: Copy postdown.sh
+  copy:
+    src: wireguard/wg0.conf.tmpl
+    dest: "/etc/wireguard/wg0.conf"
+
 - name: Start wireguard
   systemd: 
     name: wg-quick@wg0
