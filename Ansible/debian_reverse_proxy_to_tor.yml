@@ -17,11 +17,16 @@
   
   hosts: localhost
   connection: local
+  vars_files:
+    - vars/versions.yml
 
   pre_tasks:
     - debug: 
         msg: "proxy_to_tor_hosts = {{ proxy_to_tor_hosts }}"
-
+    
+    - debug: 
+        msg: "proxy_to_wireguard_hosts = {{ proxy_to_wireguard_hosts }}"
+        
     - name: apt-get update
       apt:
         update_cache: yes  
