@@ -5,7 +5,7 @@ PostUp = /etc/wireguard/postup.sh
 PostDown = /etc/wireguard/postdown.sh
 PrivateKey = {{ lookup('file', paths.wireguard_keyfile ) }}
 
-{% for item in proxy_to_wireguard_hosts %}
+{% for item in proxy_to_wireguard_hosts | mapattributes(["proxy_source_pubkey", "proxy_source_ip"]) | unique %}
 [Peer]
 PublicKey = {{ item.proxy_source_pubkey }}
 AllowedIPs = {{ item.proxy_source_ip }}/32
