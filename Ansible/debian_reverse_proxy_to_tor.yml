@@ -9,6 +9,12 @@
 #   - proxy_sink: btcpaydev.domain.com
 #     proxy_source: something.onion
 #     email: email@domain.com
+# 
+# proxy_to_wireguard_hosts:
+#   - proxy_sink: something.domain.com
+#     proxy_source_ip: 10.200.200.2
+#     proxy_source_pubkey: mO/e0dL7mvreXKxhAGfdskormU/C7/M25kTX4=
+#     email: email@domain.com
 
 # Automating the procedure described here
 # https://docs.btcpayserver.org/Deployment/ReverseProxyToTor/#reverse-proxy-to-tor

@@ -33,16 +33,17 @@
     src: wireguard/wg0.conf.tmpl
     dest: "/etc/wireguard/wg0.conf"
 
-# TODO FIX
 - name: Copy postup.sh
   copy:
-    src: wireguard/wg0.conf.tmpl
-    dest: "/etc/wireguard/wg0.conf"
+    src: wireguard/postup.sh
+    dest: "/etc/wireguard/postup.sh"
+    mode: '0755'
 
 - name: Copy postdown.sh
   copy:
-    src: wireguard/wg0.conf.tmpl
-    dest: "/etc/wireguard/wg0.conf"
+    src: wireguard/postdown.sh
+    dest: "/etc/wireguard/postdown.sh"
+    mode: '0755'
 
 - name: Start wireguard
   systemd: 
@@ -52,7 +53,6 @@
     daemon_reload: yes
 
 # Configure tor network
-- meta: end_play
 
 - name:  Create the service file /lib/systemd/system/http-to-socks-proxy@.service
   template:
@@ -121,7 +121,7 @@
 
 - name:  Create a config file for the domain with http only
   template:
-    src: "nginx/btcpayserver_before_certificate.conf"
+    src: "nginx/btcpayserver_before_certificate.conf.tmpl"
     dest: "/etc/nginx/sites-available/btcpayserver.conf"
 
 - name: Enable the web server config by creating a symlink...
@@ -137,15 +137,23 @@
 
 # Obtain SSL certificate via Let's Encrypt
 
-- name: Obtain SSL certificate via Let's Encrypt
+- name: Obtain SSL certificate via Let's Encrypt for tor redirects
   ansible.builtin.shell: "certbot certonly --agree-tos --email {{item.email}} --webroot -w /var/lib/letsencrypt/ -d {{ item.proxy_sink }}"
   args:
     creates: /etc/letsencrypt/live/{{ item.proxy_sink }}/privkey.pem
   loop: "{{proxy_to_tor_hosts}}"
 
+- name: Obtain SSL certificate via Let's Encrypt for wireguard redirects
+  ansible.builtin.shell: "certbot certonly --agree-tos --email {{item.email}} --webroot -w /var/lib/letsencrypt/ -d {{ item.proxy_sink }}"
+  args:
+    creates: /etc/letsencrypt/live/{{ item.proxy_sink }}/privkey.pem
+  loop: "{{proxy_to_wireguard_hosts}}"
+
+# Reconfigure nginx after the certificates
+
 - name:  Create a config file for the domain with https
   template:
-    src: "nginx/btcpayserver_after_certificate.conf"
+    src: "nginx/btcpayserver_after_certificate.conf.tmpl"
     dest: "/etc/nginx/sites-available/btcpayserver.conf"
 
 - name: Restart nginx once more
