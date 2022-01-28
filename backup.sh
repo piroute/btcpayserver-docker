@@ -103,6 +103,7 @@ node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
 node_backup_info_path="$BTCPAY_BASE_DIRECTORY/node_backup_info"
 pihome_dir="/home/pi"
 ssh_dir="/root/.ssh"
+vault_dir="/opt/rpi_vault"
 volumes_dir="$docker_dir/volumes"
 
 cd "$BTCPAY_BASE_DIRECTORY/btcpayserver-docker"
@@ -136,7 +137,7 @@ else
       --exclude="$volumes_dir/generated_electrs_datadir/_data/*" \
       --exclude="$volumes_dir/**/logs/*" \
       -czf $backup_path \
-      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $volumes_dir \
+      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $vault_dir $volumes_dir \
       $pihome_dir/Bookshelf $pihome_dir/Desktop $pihome_dir/Documents $pihome_dir/Downloads $pihome_dir/.electrum \
       $pihome_dir/mkcert $pihome_dir/Music $pihome_dir/Pictures $pihome_dir/Public $pihome_dir/Templates $pihome_dir/Videos
 
