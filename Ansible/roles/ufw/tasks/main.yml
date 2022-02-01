@@ -3,26 +3,98 @@
     name: ['ufw', 'fail2ban']
     state: present
 
+- set_fact:    
+    bridge_network_ID: br-btcpayserver
+
+- name: Create temporary build directory
+  ansible.builtin.tempfile:
+    state: directory
+  register: tmp_folder
+  changed_when: false
+
+- debug: 
+    msg: "tmp_folder = {{tmp_folder}}"
+
+- template:
+    src: expected_ufw_output.txt.tmpl
+    dest: "{{tmp_folder.path}}/expected_ufw_output.txt"
+  changed_when: false
+
+- name:
+  shell: |
+    ufw status numbered | grep -w '^\[[ 0-9][0-9].*' > {{tmp_folder.path}}/actual_ufw_output.txt
+    DO_NOT_RESET=true
+    [ "$(ufw status verbose | awk 'NR==3')" == "Default: deny (incoming), allow (outgoing), deny (routed)" ] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
+    diff -q {{tmp_folder.path}}/actual_ufw_output.txt {{tmp_folder.path}}/expected_ufw_output.txt 1> /dev/null
+    [[ $?  == "0" ]] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
+    $DO_NOT_RESET && echo "false" || echo "true"
+  args:
+    executable: /bin/bash
+  register: shell_registered_var
+  changed_when: shell_registered_var.stdout|bool
+
+- ansible.builtin.file:
+    path: "{{ tmp_folder.path }}"
+    state: absent
+  changed_when: false
+
+- set_fact:    
+    ufw_reset: "{{ shell_registered_var.stdout|bool }}"
+
+- debug: 
+    msg: "shell_registered_var.stdout = {{shell_registered_var.stdout}} and ufw_reset = {{ ufw_reset }}"
+
+- name: ufw reset
+  shell: ufw --force reset
+  when: ufw_reset
+
 - name: ufw default deny incoming
   shell: ufw default deny incoming
+  when: ufw_reset
 
 - name: ufw default allow outgoing
   shell: ufw default allow outgoing
+  when: ufw_reset
 
 - name: ufw allow ssh
-  shell: ufw allow ssh
+  shell: |
+    ufw allow in on eth0 to any port 22 proto tcp
+    ufw allow in on wlan0 to any port 22 proto tcp
+    ufw allow in on br-btcpayserver to any port 22 proto tcp
+  when: ufw_reset
+
+# This is kept here only for documentation
+# - name: ufw allow ssh and remote desktop connections from within guacd container
+#   shell: |
+#     {% raw %}
+#     BRIDGE_NETWORK_NAME=$(docker network ls | grep bridge | grep generated_default | awk '{print $1}')
+#     [ ! -z "$BRIDGE_NETWORK_NAME" ] && ufw allow in on br-$BRIDGE_NETWORK_NAME to any port 22 proto tcp || true
+#     {% endraw %}
+#   when: ufw_reset
 
 - name: ufw allow http
   shell: ufw allow http
+  when: ufw_reset
 
 - name: ufw allow https
   shell: ufw allow https
+  when: ufw_reset
 
 - name: ufw allow dns
-  shell: ufw allow dns
+  shell: |
+    ufw allow in on eth0 to any port 53 proto tcp
+    ufw allow in on wlan0 to any port 53 proto tcp
+    ufw allow in on eth0 to any port 53 proto udp
+    ufw allow in on wlan0 to any port 53 proto udp
+  when: ufw_reset
 
 - name: ufw allow remote desktop
-  shell: ufw allow 3389/tcp
+  shell: |
+    ufw allow in on eth0 to any port 3389 proto tcp
+    ufw allow in on wlan0 to any port 3389 proto tcp
+    ufw allow in on br-btcpayserver to any port 3389 proto tcp || true
+  when: ufw_reset
 
 - name: ufw enable
   shell: ufw --force enable
+  when: ufw_reset

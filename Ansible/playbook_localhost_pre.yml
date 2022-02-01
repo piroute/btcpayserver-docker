@@ -9,11 +9,14 @@
     - debug: 
         msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
 
-  tasks:
     - name: apt-get update with allow-releaseinfo-change
       command:
         cmd: apt-get update --allow-releaseinfo-change
 
+  roles: 
+    - ufw
+
+  tasks:
     - name: Install node system dependencies
       apt: 
         name: ['jq']
