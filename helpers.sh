@@ -186,6 +186,24 @@ btcpay_dump_db() {
     popd > /dev/null
 }
 
+woocommerce_dump_db() {
+    pushd . > /dev/null
+    cd "$(dirname "$BTCPAY_ENV_FILE")"
+    backup_dir="/var/lib/docker/opt/backups"
+    if [ ! -d "$backup_dir" ]; then
+        mkdir -p $backup_dir
+    fi
+    local filename=${1:-"mariadb-$(date "+%Y%m%d-%H%M%S").sql"}
+    MARIADB_CONTAINER=$(docker ps -a -q -f "name=mariadb_1")
+    if [ -z "$MARIADB_CONTAINER" ] || [ $(docker container inspect -f '{{.State.Status}}' $MARIADB_CONTAINER) != "running" ]; then
+        echo "Error: Cannot find mariadb container to create wordpress dump, make sure btcpayserver is started" >&2
+        read -n1 -p "Press any key to exit..." && exit 1
+    else
+        docker exec $MARIADB_CONTAINER mysqldump --user=wordpress --password=wordpress wordpress > "$backup_dir/$filename"
+    fi
+    popd > /dev/null
+}
+
 #
 # Ansible Utility Functions
 #

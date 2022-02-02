@@ -85,12 +85,14 @@ mkdir -p $backup_dir
 filename="backup.tar.gz"
 filename_encrypted="backup.tar.gz.enc"
 dumpname="postgres.sql"
+woocommerce_dumpname="mariadb.sql"
 
 if [ "$BACKUP_TIMESTAMP" == true ]; then
   timestamp=$(date "+%Y%m%d-%H%M%S")
   filename="$timestamp-$filename"
   filename_encrypted="$timestamp-$filename_encrypted"
   dumpname="$timestamp-$dumpname"
+  woocommerce_dumpname="$timestamp-$woocommerce_dumpname"
 fi
 
 backup_path="$backup_dir/${filename}"
@@ -98,6 +100,7 @@ backup_path_encrypted="$backup_dir/${filename_encrypted}"
 
 # All stuff to backup
 dbdump_path="$backup_dir/${dumpname}"
+woocommerce_dbdump_path="$backup_dir/${woocommerce_dumpname}"
 mkcert_dir="/opt/mkcert"
 node_config_path="$BTCPAY_BASE_DIRECTORY/node_configuration_script.sh"
 node_backup_info_path="$BTCPAY_BASE_DIRECTORY/node_backup_info"
@@ -123,8 +126,16 @@ GIT_TAG=$GIT_TAG" > $node_backup_info_path
 echo "Dumping database …"
 btcpay_dump_db $dumpname
 
+# dump woocommerce database (if needed)
+if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-woocommerce* ]]; then
+  echo "Dumping woocommerce database …"
+  woocommerce_dump_db $woocommerce_dumpname
+else
+  unset woocommerce_dbdump_path
+fi
+
 if [[ "$1" == "--only-db" ]]; then
-    tar -cvzf $backup_path $dbdump_path
+    tar -cvzf $backup_path $dbdump_path $woocommerce_dbdump_path
 else
     # stop docker containers, save files and restart
     echo "Stopping BTCPay Server …"
@@ -137,7 +148,8 @@ else
       --exclude="$volumes_dir/generated_electrs_datadir/_data/*" \
       --exclude="$volumes_dir/**/logs/*" \
       -czf $backup_path \
-      $dbdump_path $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $vault_dir $volumes_dir \
+      $dbdump_path $woocommerce_dbdump_path \
+      $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $vault_dir $volumes_dir \
       $pihome_dir/Bookshelf $pihome_dir/Desktop $pihome_dir/Documents $pihome_dir/Downloads $pihome_dir/.electrum \
       $pihome_dir/mkcert $pihome_dir/Music $pihome_dir/Pictures $pihome_dir/Public $pihome_dir/Templates $pihome_dir/Videos
 
@@ -211,14 +223,16 @@ if test -f $backup_path_encrypted 2>/dev/null; then
   esac
   
   # and cleanup
-  rm $dbdump_path
-  rm $backup_path
+  rm -f $dbdump_path
+  rm -f $woocommerce_dbdump_path
+  rm -f $backup_path
 
 else
   echo "Unencrypted backup at $backup_path"
   
   # cleanup
-  rm $dbdump_path
+  rm -f $dbdump_path
+  rm -f $woocommerce_dbdump_path
 fi
 
 read -n1 -p "Backup done. Press any key to exit..."
