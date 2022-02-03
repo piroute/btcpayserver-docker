@@ -52,6 +52,7 @@ fi
 #
 # opt-add-guacamole
 #
+
 if [[ -f Generated/guacamole/user-mapping.xml && $(find "Generated/guacamole/user-mapping.xml" -mtime +30 -print) ]]; then
   # Force recreate of guacamole authentication keys if older than 30 days
   echo "Guacamole configuration file exists and is older than 30 days, forcing recreation..."

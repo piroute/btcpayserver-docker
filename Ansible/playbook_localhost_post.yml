@@ -1,4 +1,4 @@
-# ansible-playbook -i hosts playbook_localhost_post.yml
+# source ../../node_configuration_script.sh && ansible-playbook -i hosts playbook_localhost_post.yml
 
 - name: Configure localhost (POST)
   
@@ -34,14 +34,13 @@
         path: /etc/hosts
         line: "127.0.1.1       {{ lookup('env','BTCPAY_HOST') }}"
 
+    # NB: Changing ownership of the backups folder to pi (to delete old backups) is done by mounting options
     - name: Change ownership of the apps folder to root (apps should not be modified)
       ansible.builtin.file:
         path: "{{paths.apps}}"
         owner: root
         group: root
         mode: '0755'
-
-    # Changing ownership of the backups folder to pi (to delete old backups) is done by mounting options
 
     - name: Create a symbolic link to apps and backups
       ansible.builtin.file:
