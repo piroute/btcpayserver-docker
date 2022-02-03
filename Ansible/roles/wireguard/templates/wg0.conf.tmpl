@@ -1,0 +1,9 @@
+[Interface]
+Address = {{ lookup('env','WIREGUARD_PEER_IP') }}/24
+PrivateKey = {{ lookup('file', paths.wireguard_keyfile ) }}
+
+[Peer]
+PublicKey = {{ lookup('env','WIREGUARD_SERVER_PUBKEY') }}
+AllowedIPs = 10.200.200.1/32
+Endpoint = {{ lookup('env','WIREGUARD_SERVER_ENDPOINT') }}
+PersistentKeepalive = 25

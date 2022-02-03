@@ -112,6 +112,7 @@ FIREFLY_HOST=$FIREFLY_HOST" > $BTCPAY_ENV_FILE
 
 env | grep ^ELECTRS_NETWORK >> $BTCPAY_ENV_FILE || true
 env | grep ^BWT_ >> $BTCPAY_ENV_FILE || true
+env | grep ^WIREGUARD_ >> $BTCPAY_ENV_FILE || true
 }
 
 docker_update() {

@@ -26,6 +26,7 @@
     - apps-in-the-terminal
     - app-electrum
     - mkcert-btcpay
+    - wireguard
 
   tasks:
 

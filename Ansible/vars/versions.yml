@@ -3,6 +3,7 @@ paths:
   backups: /opt/backups
   rpi_vault: /opt/rpi_vault
   sda3_luks_keyfile: /opt/rpi_vault/sda3_luks_keyfile
+  wireguard_keyfile: /opt/rpi_vault/wireguard_keyfile
 
 versions:
   chantools: v0.9.2
