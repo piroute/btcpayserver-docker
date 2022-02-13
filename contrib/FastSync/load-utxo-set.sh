@@ -28,10 +28,18 @@ if ! [[ "$NBITCOIN_NETWORK" ]]; then
     exit 1
 fi
 
+if ! [[ "$BTCPAYGEN_ADDITIONAL_FRAGMENTS" == *"opt-save-storage"* ]]; then
+  echo "Pruning must be enabled, please update BTCPAYGEN_ADDITIONAL_FRAGMENTS by running:"
+  echo ""
+  echo 'BTCPAYGEN_ADDITIONAL_FRAGMENTS="$BTCPAYGEN_ADDITIONAL_FRAGMENTS;opt-save-storage-s"'
+  echo '. btcpay-setup -i'
+  exit 1
+fi
+
 TAR_FILE="$1"
 
 if ! [[ "$UTXO_DOWNLOAD_LINK" ]]; then
-    [[ $NBITCOIN_NETWORK == "mainnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-mainnet-699714.tar"
+    [[ $NBITCOIN_NETWORK == "mainnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-mainnet-720179.tar"
     [[ $NBITCOIN_NETWORK == "testnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-testnet-1445586.tar"
 fi
 

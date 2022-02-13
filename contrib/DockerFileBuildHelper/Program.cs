@@ -407,17 +407,6 @@ namespace DockerFileBuildHelper
                     dockerInfo.SupportedByUs = true;
                     break;
                 }
-                case "bitcointaprootcc/0.21.0-bip8-lottrue":
-                {
-                    var tagNoRevision = image.Tag.Split('-').First();
-                    dockerInfo.DockerFilePath = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxamd64.Dockerfile";
-                    dockerInfo.DockerFilePathARM32v7 = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxarm32v7.Dockerfile";
-                    dockerInfo.DockerFilePathARM64v8 = $"bitcointaprootcc/0.21.0-bip8-lottrue/linuxarm64v8.Dockerfile";
-                    dockerInfo.GitLink = "https://github.com/btcpayserver/dockerfile-deps";
-                    dockerInfo.GitRef = $"bitcointaprootcc/0.21.0-bip8-lottrue";
-                    dockerInfo.SupportedByUs = true;
-                    break;
-                }
                 case "elements":
                 {
                     var tagNoRevision = image.Tag.Split('-').First();
@@ -520,6 +509,7 @@ namespace DockerFileBuildHelper
                 case "litecoin":
                     dockerInfo.DockerFilePath = $"Litecoin/{NoRevision(image.Tag)}/linuxamd64.Dockerfile";
                     dockerInfo.DockerFilePathARM32v7 = $"Litecoin/{NoRevision(image.Tag)}/linuxarm32v7.Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Litecoin/{NoRevision(image.Tag)}/linuxarm64v8.Dockerfile";
                     dockerInfo.GitLink = "https://github.com/btcpayserver/dockerfile-deps";
                     dockerInfo.GitRef = $"Litecoin/{image.Tag}";
                     break;
@@ -671,6 +661,27 @@ namespace DockerFileBuildHelper
                     dockerInfo.GitLink = "https://github.com/lightninglabs/lightning-terminal";
                     dockerInfo.DockerFilePath = $"Dockerfile";
                     dockerInfo.GitRef = image.Tag.Replace("-path-prefix", "");
+                    break;
+                case "chatwoot/chatwoot":
+                    dockerInfo.DockerFilePath = $"docker/Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"docker/Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"docker/Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/chatwoot/chatwoot";
+                    dockerInfo.GitRef = $"{image.Tag}";
+                    break;
+                case "podcastindexorg/podcasting20-helipad":
+                    dockerInfo.DockerFilePath = $"umbrel/Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"umbrel/Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"umbrel/Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/Podcastindex-org/helipad";
+                    dockerInfo.GitRef = $"{image.Tag}";
+                    break;
+                case "kukks/nnostr-relay":
+                    dockerInfo.DockerFilePath = $"Relay/Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"Relay/Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Relay/Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/kukks/nnostr";
+                    dockerInfo.GitRef = $"Relay/{image.Tag}";
                     break;
                 default:
                     if (firstTry)
