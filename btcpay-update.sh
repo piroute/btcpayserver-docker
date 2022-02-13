@@ -37,9 +37,10 @@ if [[ "$1" != "--skip-git-pull" ]]; then
     return
 fi
 
-. helpers.sh
-
 # GS_SPECIFIC Ansible initial configuration
+# NB: btcpay_down should be removed when there is no need to update network interfaces
+. helpers.sh
+btcpay_down 
 ansible_pre_configure
 # GS_SPECIFIC end
 
