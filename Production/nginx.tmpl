@@ -318,7 +318,7 @@ proxy_set_header Proxy "";
 {{ $enable_ipv6 := eq (or ($.Env.ENABLE_IPV6) "") "true" }}
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
 	listen 80;
@@ -332,7 +332,7 @@ server {
 {{ if (and (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name _; # This is just an invalid value which will never trigger on a real hostname.
 	listen 443 ssl http2;
@@ -389,7 +389,7 @@ upstream {{ $upstream_name }} {
 	{{ if ne $onionHost "" }}
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name {{ trim $onionHost }};
 	listen 80 ;
@@ -461,7 +461,7 @@ server {
 {{ if eq $https_method "redirect" }}
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name {{ $host }};
 	listen 80 {{ $default_server }};
@@ -475,7 +475,7 @@ server {
 
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	proxy_set_header X-Forwarded-Host  $http_host;
 	proxy_set_header Host $http_host;
@@ -587,7 +587,7 @@ server {
 
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name {{ $host }};
 	listen 80 {{ $default_server }};
@@ -634,7 +634,7 @@ server {
 {{ if (and (not $is_https) (exists "/etc/nginx/certs/default.crt") (exists "/etc/nginx/certs/default.key")) }}
 server {
 	limit_req zone=getlimit burst=100 nodelay;
-	limit_req zone=postlimit burst=5 nodelay;
+	limit_req zone=postlimit burst=50 nodelay;
 
 	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
