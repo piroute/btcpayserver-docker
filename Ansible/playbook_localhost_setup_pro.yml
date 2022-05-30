@@ -1,0 +1,80 @@
+# ansible-playbook -i hosts playbook_localhost_setup_pro.yml
+
+- name: Configure localhost (PRE)
+  
+  hosts: localhost
+  connection: local
+
+  # Set to no only during development
+  gather_facts: yes
+
+  vars_files:
+    - vars/versions.yml
+  
+  pre_tasks:
+  
+  # Add comments only during development
+    - name: apt-get update with allow-releaseinfo-change
+      command:
+        cmd: apt-get update --allow-releaseinfo-change
+
+    #
+    # Setup the SSD
+    #
+
+    - name: Install growpart
+      apt: 
+        name: ['cloud-guest-utils']
+        state: latest
+ 
+    - name: Extend the btrfs partitions to max
+      shell: |
+        growpart /dev/sda 2
+        mdadm --grow /dev/md0 -z max
+        echo start123 | cryptsetup resize /dev/mapper/md0_crypt -
+        btrfs filesystem resize max /
+
+    #
+    # Setup the SD card
+    #
+
+    - name: Check that the microsd exists
+      stat:
+        path: /dev/mmcblk0
+      register: microsd_drive
+
+    - name: Create partitions on the microsd
+      community.general.parted:
+        device: '/dev/mmcblk0'
+        number: 1
+        part_type: primary
+        part_start: 0%
+        part_end: 100%
+        state: present
+      when: microsd_drive.stat.exists
+    
+    - name: Create a fat filesystem on the microsd
+      community.general.filesystem:
+        fstype: vfat
+        dev: /dev/mmcblk0p1
+      when: microsd_drive.stat.exists
+    
+    - name: Create backup directory if it does not exist
+      ansible.builtin.file:
+        path: "{{paths.backups}}"
+        state: directory
+      when: microsd_drive.stat.exists
+
+    - name: Mount backup directory
+      ansible.posix.mount:
+        path: "{{paths.backups}}"
+        src: /dev/mmcblk0p1
+        fstype: vfat
+        opts: defaults,uid=1000,gid=1000,noatime,nofail
+        state: mounted
+      when: microsd_drive.stat.exists
+  
+  roles:
+    - swap
+    - ufw
+    - utils

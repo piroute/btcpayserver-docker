@@ -253,7 +253,15 @@ if [ $? -ne 0 ]; then
 fi
 
 cd /root/BTCPayNode/btcpayserver-docker/Ansible
-ansible-playbook -i hosts playbook_localhost_setup.yml
+
+if grep -q "^/dev/mapper/md0_crypt" /etc/fstab; then
+  echo "Found pro image, running Ansible playbook_localhost_setup_pro"
+  ansible-playbook -i hosts playbook_localhost_setup_pro.yml
+else
+  echo "Found base image, running Ansible playbook_localhost_setup"
+  ansible-playbook -i hosts playbook_localhost_setup.yml
+fi
+
 if [ $? -ne 0 ]; then
   echo "ERROR: first ansible setup failed."
   read -n1 -p "Press any key to exit..." && exit 1
