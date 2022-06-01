@@ -151,6 +151,11 @@
 
 # Reconfigure nginx after the certificates
 
+- name: Automatically reload nginx upon certificate renewal
+  lineinfile:
+    dest: /etc/letsencrypt/cli.ini
+    line: "deploy-hook = systemctl reload nginx"
+    
 - name:  Create a config file for the domain with https
   template:
     src: "nginx/btcpayserver_after_certificate.conf.tmpl"
