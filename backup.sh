@@ -48,7 +48,7 @@ case "$BACKUP_PROVIDER" in
         echo -e "\033[0;31mSet S3_BUCKET environment variable and try again.\033[0m"
         exit 1
     fi
-    
+
     if [ -z "$S3_PATH" ]; then
         echo -e "\033[1;33mUsing bucket root for backup, set S3_PATH if you want to backup into a specific folder (Make sure it ends with a trailing slash).\033[0m"
     fi
@@ -143,13 +143,14 @@ else
 
     echo "Backing up files …"
     tar \
-      --exclude="$volumes_dir/generated_bitcoin_datadir/_data/*" \
-      --exclude="$volumes_dir/generated_litecoin_datadir/_data/*" \
+      --exclude="$backup_path" \
+      --exclude="$volumes_dir/generated_bitcoin_datadir/*" \
+      --exclude="$volumes_dir/generated_litecoin_datadir/*" \
       --exclude="$volumes_dir/generated_electrs_datadir/_data/*" \
       --exclude="$volumes_dir/**/logs/*" \
-      -czf $backup_path \
-      $dbdump_path $woocommerce_dbdump_path \
-      $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $vault_dir $volumes_dir \
+      -cvzf $backup_path $dbdump_path $volumes_dir \
+      $woocommerce_dbdump_path \
+      $mkcert_dir $node_config_path $node_backup_info_path $ssh_dir $vault_dir \
       $pihome_dir/Bookshelf $pihome_dir/Desktop $pihome_dir/Documents $pihome_dir/Downloads $pihome_dir/.electrum \
       $pihome_dir/mkcert $pihome_dir/Music $pihome_dir/Pictures $pihome_dir/Public $pihome_dir/Templates $pihome_dir/Videos
 
