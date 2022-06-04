@@ -56,6 +56,10 @@ services:
         # Be careful if you copy the line below from the docker-compose.yml! A dollar sign is escaped.
         rpcauth=joinmarket:4b4dbcb712557eb8c8bfd56a2b6a7707$$6497d80877f10dc375829724f369f546b070fc706121a361438a4a1e51025bea
 
+  btcpayserver:
+    environment:
+      BTCPAY_EXTERNALSERVICES: "Joinmarket UI:/joinmarket"
+
 volumes:
   joinmarket_datadir:
 
