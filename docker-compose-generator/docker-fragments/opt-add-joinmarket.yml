@@ -60,7 +60,7 @@ services:
 
   btcpayserver:
     environment:
-      BTCPAY_EXTERNALSERVICES: "Joinmarket UI:/joinmarket"
+      BTCPAY_EXTERNALSERVICES: "Joinmarket UI:${BTCPAY_PROTOCOL:-https}://admin:start123@${BTCPAY_HOST}/joinmarket;"
 
 volumes:
   joinmarket_datadir:

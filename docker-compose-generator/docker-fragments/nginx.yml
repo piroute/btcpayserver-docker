@@ -11,6 +11,7 @@ services:
       - "nginx_conf:/etc/nginx/conf.d"
       - "nginx_vhost:/etc/nginx/vhost.d"
       - "nginx_html:/usr/share/nginx/html"
+      - "./.htpasswd:/etc/nginx/.htpasswd:ro"
   nginx-gen:
     restart: unless-stopped
     image: btcpayserver/docker-gen:0.7.8

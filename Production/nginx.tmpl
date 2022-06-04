@@ -47,6 +47,8 @@
 
     location /joinmarket/ {
       # TODO: Add authentication
+			auth_basic "Administrator’s Area";
+    	auth_basic_user_file /etc/nginx/.htpasswd; 
       proxy_pass http://joinmarket_webui/;
 		}
 		{{ end }}
