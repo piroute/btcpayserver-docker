@@ -42,12 +42,12 @@ else
 fi
 
 # Verify we are in right folder. If we are not, let's go in the parent folder of the current docker-compose.
-if ! git -C . rev-parse &> /dev/null || [ ! -d "Generated" ]; then
+if ! git rev-parse --git-dir &> /dev/null || [ ! -d "Generated" ]; then
     if [[ ! -z $BTCPAY_DOCKER_COMPOSE ]]; then
         cd $(dirname $BTCPAY_DOCKER_COMPOSE)
         cd ..
     fi
-    if ! git -C . rev-parse || [[ ! -d "Generated" ]]; then
+    if ! git rev-parse || [[ ! -d "Generated" ]]; then
         echo "You must run this script inside the git repository of btcpayserver-docker"
         return
     fi
@@ -113,6 +113,7 @@ Add-on specific variables:
     TOR_RELAY_EMAIL: If tor relay is activated with opt-add-tor-relay, the email for Tor to contact you regarding your relay
     CHATWOOT_HOST: If chatwoot is activated with opt-add-chatwoot, the hostname of your chatwoot website (eg. store.example.com)
     FIREFLY_HOST: If fireflyiii is activated with opt-add-fireflyiii, the hostname of your libre patron website (eg. firefly.example.com)
+    CLOUDFLARE_TUNNEL_TOKEN: Used to expose your instance to clearnet with a Cloudflare Argo Tunnel
 END
 }
 START=""
@@ -213,6 +214,7 @@ fi
 : "${REVERSEPROXY_HTTPS_PORT:=443}"
 : "${BTCPAY_ENABLE_SSH:=false}"
 : "${PIHOLE_SERVERIP:=}"
+: "${CLOUDFLARE_TUNNEL_TOKEN:=}"
 
 OLD_BTCPAY_DOCKER_COMPOSE="$BTCPAY_DOCKER_COMPOSE"
 ORIGINAL_DIRECTORY="$(pwd)"
@@ -253,7 +255,7 @@ if $BTCPAY_ENABLE_SSH && [[ "$BTCPAY_HOST_SSHAUTHORIZEDKEYS" ]]; then
         touch $BTCPAY_HOST_SSHAUTHORIZEDKEYS
     fi
     BTCPAY_SSHAUTHORIZEDKEYS="/datadir/host_authorized_keys"
-    BTCPAY_SSHKEYFILE="/datadir/host_id_rsa"
+    BTCPAY_SSHKEYFILE="/datadir/host_id_ed25519"
     use_ssh=true
 fi
 

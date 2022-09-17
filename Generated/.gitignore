@@ -1,9 +1,11 @@
 *.yml
 nginx.tmpl
-*.toml
-!electrs.toml
 *.json
 pull-images.sh
 
-# Guacamole
+# Electrs (opt-add-electrs)
+*.toml
+!electrs.toml
+
+# Guacamole (opt-add-guacamole)
 guacamole/*

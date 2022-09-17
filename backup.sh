@@ -84,7 +84,7 @@ mkdir -p $backup_dir
 
 filename="backup.tar.gz"
 filename_encrypted="backup.tar.gz.enc"
-dumpname="postgres.sql"
+dumpname="postgres.sql.gz"
 woocommerce_dumpname="mariadb.sql"
 
 if [ "$BACKUP_TIMESTAMP" == true ]; then
@@ -122,14 +122,21 @@ GIT_REMOTE=$GIT_REMOTE
 GIT_BRANCH=$GIT_BRANCH
 GIT_TAG=$GIT_TAG" > $node_backup_info_path
 
+# Upstream creates backup dir using docker volume create
+# We use mkdir
+# ensure backup dir exists
+# if [ ! -d "$backup_dir" ]; then
+#     docker volume create backup_datadir
+# fi
+
 # dump database
 echo "Dumping database …"
-btcpay_dump_db $dumpname
+btcpay_dump_db $dbdump_path
 
 # dump woocommerce database (if needed)
 if [[ $BTCPAYGEN_ADDITIONAL_FRAGMENTS = *opt-add-woocommerce* ]]; then
   echo "Dumping woocommerce database …"
-  woocommerce_dump_db $woocommerce_dumpname
+  woocommerce_dump_db $woocommerce_dbdump_path
 else
   unset woocommerce_dbdump_path
 fi

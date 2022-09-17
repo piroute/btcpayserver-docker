@@ -114,7 +114,8 @@ FIREFLY_HOST=$FIREFLY_HOST
 LIT_PASSWD=$LIT_PASSWD
 TALLYCOIN_APIKEY=$TALLYCOIN_APIKEY
 TALLYCOIN_PASSWD=$TALLYCOIN_PASSWD
-TALLYCOIN_PASSWD_CLEARTEXT=$TALLYCOIN_PASSWD_CLEARTEXT" > $BTCPAY_ENV_FILE
+TALLYCOIN_PASSWD_CLEARTEXT=$TALLYCOIN_PASSWD_CLEARTEXT
+CLOUDFLARE_TUNNEL_TOKEN=$CLOUDFLARE_TUNNEL_TOKEN" > $BTCPAY_ENV_FILE
 
 env | grep ^ELECTRS_NETWORK >> $BTCPAY_ENV_FILE || true
 env | grep ^BWT_ >> $BTCPAY_ENV_FILE || true
@@ -178,17 +179,13 @@ btcpay_restart() {
 btcpay_dump_db() {
     pushd . > /dev/null
     cd "$(dirname "$BTCPAY_ENV_FILE")"
-    backup_dir="/var/lib/docker/opt/backups"
-    if [ ! -d "$backup_dir" ]; then
-        mkdir -p $backup_dir
-    fi
-    local filename=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql"}
+    local file_path=${1:-"postgres-$(date "+%Y%m%d-%H%M%S").sql.gz"}
     POSTGRES_CONTAINER=$(docker ps -a -q -f "name=postgres_1")
     if [ -z "$POSTGRES_CONTAINER" ] || [ $(docker container inspect -f '{{.State.Status}}' $POSTGRES_CONTAINER) != "running" ]; then
         echo "Error: Cannot find postgres container to create dump, make sure btcpayserver is started" >&2
         read -n1 -p "Press any key to exit..." && exit 1
     else
-        docker exec $POSTGRES_CONTAINER pg_dumpall -c -U postgres > "$backup_dir/$filename"
+        docker exec $POSTGRES_CONTAINER pg_dumpall -c -U postgres | gzip > "$file_path"
     fi
     popd > /dev/null
 }
@@ -196,17 +193,13 @@ btcpay_dump_db() {
 woocommerce_dump_db() {
     pushd . > /dev/null
     cd "$(dirname "$BTCPAY_ENV_FILE")"
-    backup_dir="/var/lib/docker/opt/backups"
-    if [ ! -d "$backup_dir" ]; then
-        mkdir -p $backup_dir
-    fi
-    local filename=${1:-"mariadb-$(date "+%Y%m%d-%H%M%S").sql"}
+    local file_path=${1:-"mariadb-$(date "+%Y%m%d-%H%M%S").sql.gz"}
     MARIADB_CONTAINER=$(docker ps -a -q -f "name=mariadb_1")
     if [ -z "$MARIADB_CONTAINER" ] || [ $(docker container inspect -f '{{.State.Status}}' $MARIADB_CONTAINER) != "running" ]; then
         echo "Error: Cannot find mariadb container to create wordpress dump, make sure btcpayserver is started" >&2
         read -n1 -p "Press any key to exit..." && exit 1
     else
-        docker exec $MARIADB_CONTAINER mysqldump --user=wordpress --password=wordpress wordpress > "$backup_dir/$filename"
+        docker exec $MARIADB_CONTAINER mysqldump --user=wordpress --password=wordpress wordpress | gzip > "$file_path"
     fi
     popd > /dev/null
 }

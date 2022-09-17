@@ -246,6 +246,14 @@ namespace DockerFileBuildHelper
                     dockerInfo.GitRef = $"EPS/{image.Tag}";
                     dockerInfo.SupportedByUs = true;
                     break;
+                case "cloudflared":
+                    dockerInfo.DockerFilePath = $"Cloudflared/{NoRevision(image.Tag)}/linuxamd64.Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"Cloudflared/{NoRevision(image.Tag)}/linuxarm32v7.Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Cloudflared/{NoRevision(image.Tag)}/linuxarm64v8.Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/btcpayserver/dockerfile-deps";
+                    dockerInfo.GitRef = $"Cloudflared/{image.Tag}";
+                    dockerInfo.SupportedByUs = true;
+                    break;
                 case "joinmarket":
                     dockerInfo.DockerFilePath = $"JoinMarket/{NoRevision(image.Tag)}/linuxamd64.Dockerfile";
                     dockerInfo.DockerFilePathARM32v7 = $"JoinMarket/{NoRevision(image.Tag)}/linuxarm32v7.Dockerfile";
@@ -392,9 +400,10 @@ namespace DockerFileBuildHelper
                     dockerInfo.SupportedByUs = false;
                     break;
                 case "monero":
-                    dockerInfo.DockerFilePath = "Dockerfile";
-                    dockerInfo.GitLink = "https://github.com/Kukks/monero-docker";
-                    dockerInfo.GitRef = $"x86_64";
+                    dockerInfo.DockerFilePath = $"Monero/{NoRevision(image.Tag)}/linuxamd64.Dockerfile";
+                    dockerInfo.GitLink = "https://github.com/btcpayserver/dockerfile-deps";
+                    dockerInfo.GitRef = $"Monero/{NoRevision(image.Tag)}";
+                    dockerInfo.SupportedByUs = true;
                     break;
                 case "bitcoin":
                 {
@@ -632,16 +641,19 @@ namespace DockerFileBuildHelper
                     break;
                 case "sphinx-relay":
                     dockerInfo.DockerFilePath = $"Dockerfile";
-                    dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM32v7 = $"Dockerfile";
                     dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
                     dockerInfo.GitLink = "https://github.com/stakwork/sphinx-relay";
                     dockerInfo.GitRef = $"{image.Tag}";
+                    dockerInfo.SupportedByUs = false;
                     break;
                 case "lndhub":
                     dockerInfo.DockerFilePath = $"Dockerfile";
                     dockerInfo.DockerFilePathARM32v7 = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
                     dockerInfo.GitLink = "https://github.com/BlueWallet/LndHub";
                     dockerInfo.GitRef = $"{image.Tag.Split("@")[0]}";
+                    dockerInfo.SupportedByUs = false;
                     break;
                 case "fireflyiii/core":
                     dockerInfo.DockerFilePath = $"Dockerfile";
@@ -654,6 +666,7 @@ namespace DockerFileBuildHelper
                 case "lightninglabs/lightning-terminal":
                     dockerInfo.GitLink = "https://github.com/lightninglabs/lightning-terminal";
                     dockerInfo.DockerFilePath = $"Dockerfile";
+                    dockerInfo.DockerFilePathARM64v8 = $"Dockerfile";
                     dockerInfo.GitRef = image.Tag.Replace("-path-prefix", "");
                     break;
                 case "chatwoot/chatwoot":
