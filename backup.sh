@@ -85,7 +85,7 @@ mkdir -p $backup_dir
 filename="backup.tar.gz"
 filename_encrypted="backup.tar.gz.enc"
 dumpname="postgres.sql.gz"
-woocommerce_dumpname="mariadb.sql"
+woocommerce_dumpname="mariadb.sql.gz"
 
 if [ "$BACKUP_TIMESTAMP" == true ]; then
   timestamp=$(date "+%Y%m%d-%H%M%S")
