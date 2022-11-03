@@ -8,4 +8,4 @@
 
 # Prefer cookie file unless you have btc-rpc-proxy or a good reason to use username:password
 # cookie and cookie_file can NOT be specified at the same tie.
-cookie = "electrs:jjHnsI7AVd05EVHBo0hmWkIvmFZWVOeeN7iQ26Spcvw="
+auth = "electrs:jjHnsI7AVd05EVHBo0hmWkIvmFZWVOeeN7iQ26Spcvw="
