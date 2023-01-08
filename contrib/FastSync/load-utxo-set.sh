@@ -39,7 +39,7 @@ fi
 TAR_FILE="$1"
 
 if ! [[ "$UTXO_DOWNLOAD_LINK" ]]; then
-    [[ $NBITCOIN_NETWORK == "mainnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-mainnet-744358.tar"
+    [[ $NBITCOIN_NETWORK == "mainnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-mainnet-769818.tar"
     [[ $NBITCOIN_NETWORK == "testnet" ]] && UTXO_DOWNLOAD_LINK="http://utxosets.blob.core.windows.net/public/utxo-snapshot-bitcoin-testnet-1445586.tar"
 fi
 
@@ -66,7 +66,7 @@ cd "$TAR_DIR"
 IS_DOWNLOADED=false
 if [ ! -f "$TAR_FILE" ]; then
   echo "Downloading $UTXO_DOWNLOAD_LINK to $TAR_FILE"
-  wget "$UTXO_DOWNLOAD_LINK" -q --show-progress
+  wget "$UTXO_DOWNLOAD_LINK" -c -O $TAR_FILE.partial -q --show-progress && mv $TAR_FILE.partial $TAR_FILE
   IS_DOWNLOADED=true
 else
   echo "$TAR_FILE already exists"

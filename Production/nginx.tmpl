@@ -27,7 +27,7 @@
 	{{ range $container := $.Containers }}
 		{{ $serviceName := (index $container.Labels "com.docker.compose.service") }}
 		{{ if (eq $serviceName "lnd_bitcoin") }}
-	location ~* ^/(lnrpc|routerrpc)\. {
+	location ~* ^/(lnrpc|routerrpc|verrpc|walletrpc)\. {
 		grpc_read_timeout 6000s;
 		grpc_send_timeout 6000s;
 		grpc_pass grpcs://lnd_bitcoin:10009;
@@ -156,6 +156,12 @@
 
   location ~* ^/(ln|loop|pool|lit)rpc\. {
     proxy_pass http://lnd_lit:8080;
+  }
+  {{ end }}
+
+  {{ if (eq $serviceName "torq") }}
+  location /torq/ {
+    proxy_pass http://torq:8080/;
   }
   {{ end }}
 
