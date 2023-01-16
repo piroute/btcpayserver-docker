@@ -80,6 +80,12 @@
   shell: ufw allow https
   when: ufw_reset
 
+- name: ufw allow lightning
+  shell: |
+    ufw allow in on eth0 to any port 9735 proto tcp
+    ufw allow in on wlan0 to any port 9735 proto tcp
+  when: ufw_reset
+
 - name: ufw allow dns
   shell: |
     ufw allow in on eth0 to any port 53 proto tcp
