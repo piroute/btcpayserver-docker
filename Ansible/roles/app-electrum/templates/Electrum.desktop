@@ -9,4 +9,4 @@ Icon=/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-p
 
 Name=Electrum
 
-Exec=env PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH /opt/electrum/venv-{{versions.electrum}}/bin/python /opt/electrum/venv-{{versions.electrum}}/bin/electrum --oneserver --server=127.0.0.1:50001:t
+Exec=env PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH /opt/electrum/venv-{{versions.electrum}}/bin/python /opt/electrum/venv-{{versions.electrum}}/bin/electrum {% if lookup('env','NBITCOIN_NETWORK') == 'testnet' %}--testnet{% elif lookup('env','NBITCOIN_NETWORK') == 'signet' %}--signet{% endif %} --oneserver --server=127.0.0.1:50001:t
