@@ -1,4 +1,4 @@
-# source ../../node_configuration_script.sh && ansible-playbook -i hosts playbook_localhost_post.yml
+# source /root/BTCPayNode/node_configuration_script.sh && ansible-playbook -i hosts playbook_localhost_post.yml
 
 - name: Configure localhost (POST)
   
@@ -46,7 +46,7 @@
     - name: Create a symbolic link to apps and backups
       ansible.builtin.file:
         src: "/opt/{{item}}"
-        dest: "/home/pi/Desktop/{{item}}"
+        dest: "/home/{{username}}/Desktop/{{item}}"
         state: link
       with_items:
         - apps
