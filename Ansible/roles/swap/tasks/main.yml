@@ -1,3 +1,8 @@
+- name: Install dphys-swapfile
+  apt: 
+    name: ['dphys-swapfile']
+    state: latest
+
 - name: dphys-swapfile swapoff
   shell: dphys-swapfile swapoff
   changed_when: False
