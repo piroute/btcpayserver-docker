@@ -97,14 +97,14 @@
     name: plugdev
     state: present
 
-- name: adding existing user pi to group plugdev
+- name: "adding existing user {{username}} to group plugdev"
   user:
-    name: pi
+    name: "{{username}}"
     groups: plugdev
     append: yes
 
 - name: Copy udev rules file
-  copy:
+  template:
     src: 20-hw1.rules
     dest: /etc/udev/rules.d/20-hw1.rules
     mode: '0644'
@@ -130,8 +130,14 @@
     state: directory
     mode: '0755'
     
+- name: Remove old apps Electrum desktop file
+  ansible.builtin.file:
+    path: "{{paths.apps}}/Electrum.desktop"
+    state: absent
+
 - name: Copy Electrum.desktop file
   template:
     src: Electrum.desktop
-    dest: "{{paths.apps}}/Electrum.desktop"
-    mode: '0755'
+    dest: /usr/share/applications/Electrum.desktop
+    mode: '0744'
+
