@@ -5,6 +5,8 @@ paths:
   sda3_luks_keyfile: /opt/rpi_vault/sda3_luks_keyfile
   wireguard_keyfile: /opt/rpi_vault/wireguard_keyfile
 
+username: "{{ 'pi' if ansible_architecture == 'aarch64' else 'debian' if ansible_architecture == 'x86_64' else 'undefined' }}"
+
 versions:
   chantools: v0.9.2
   go: 1.13
