@@ -4,7 +4,12 @@
     state: present
 
 - set_fact:    
-    bridge_network_ID: br-btcpayserver
+    interface_docker_ID: br-btcpayserver
+    interface_0_ID: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth).*' )) | sort )[0] }}"
+    interface_1_ID: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth).*' )) | sort )[1] }}"
+
+- debug: 
+    msg: "{{interface_docker_ID}}, {{interface_0_ID}}, {{interface_1_ID}}"
 
 - name: Create temporary build directory
   ansible.builtin.tempfile:
@@ -22,10 +27,11 @@
 
 - name:
   shell: |
-    ufw status numbered | grep -w '^\[[ 0-9][0-9].*' > {{tmp_folder.path}}/actual_ufw_output.txt
     DO_NOT_RESET=true
-    [ "$(ufw status verbose | awk 'NR==3')" == "Default: deny (incoming), allow (outgoing), deny (routed)" ] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
-    diff -q {{tmp_folder.path}}/actual_ufw_output.txt {{tmp_folder.path}}/expected_ufw_output.txt 1> /dev/null
+    UFW_DEFAULT=$(ufw status verbose | awk 'NR==3') 
+    [[ $UFW_DEFAULT == "Default: deny (incoming), allow (outgoing), deny (routed)" || $UFW_DEFAULT == "Default: deny (incoming), allow (outgoing), disabled (routed)" ]] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
+    ufw status numbered verbose | grep -w '^\[[ 0-9][0-9].*' > {{tmp_folder.path}}/actual_ufw_output.txt
+    diff -qb {{tmp_folder.path}}/actual_ufw_output.txt {{tmp_folder.path}}/expected_ufw_output.txt 1> /dev/null
     [[ $?  == "0" ]] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
     $DO_NOT_RESET && echo "false" || echo "true"
   args:
@@ -58,9 +64,9 @@
 
 - name: ufw allow ssh
   shell: |
-    ufw allow in on eth0 to any port 22 proto tcp
-    ufw allow in on wlan0 to any port 22 proto tcp
-    ufw allow in on br-btcpayserver to any port 22 proto tcp
+    ufw allow in on {{interface_0_ID}} to any port 22 proto tcp
+    ufw allow in on {{interface_1_ID}} to any port 22 proto tcp
+    ufw allow in on {{interface_docker_ID}} to any port 22 proto tcp
   when: ufw_reset
 
 # This is kept here only for documentation
@@ -82,23 +88,23 @@
 
 - name: ufw allow dns
   shell: |
-    ufw allow in on eth0 to any port 53 proto tcp
-    ufw allow in on wlan0 to any port 53 proto tcp
-    ufw allow in on eth0 to any port 53 proto udp
-    ufw allow in on wlan0 to any port 53 proto udp
+    ufw allow in on {{interface_0_ID}} to any port 53 proto tcp
+    ufw allow in on {{interface_1_ID}} to any port 53 proto tcp
+    ufw allow in on {{interface_0_ID}} to any port 53 proto udp
+    ufw allow in on {{interface_1_ID}} to any port 53 proto udp
   when: ufw_reset
 
 - name: ufw allow remote desktop
   shell: |
-    ufw allow in on eth0 to any port 3389 proto tcp
-    ufw allow in on wlan0 to any port 3389 proto tcp
-    ufw allow in on br-btcpayserver to any port 3389 proto tcp || true
+    ufw allow in on {{interface_0_ID}} to any port 3389 proto tcp
+    ufw allow in on {{interface_1_ID}} to any port 3389 proto tcp
+    ufw allow in on {{interface_docker_ID}} to any port 3389 proto tcp || true
   when: ufw_reset
 
 - name: ufw allow lightning
   shell: |
-    ufw allow in on eth0 to any port 9735 proto tcp
-    ufw allow in on wlan0 to any port 9735 proto tcp
+    ufw allow in on {{interface_0_ID}} to any port 9735 proto tcp
+    ufw allow in on {{interface_1_ID}} to any port 9735 proto tcp
   when: ufw_reset
 
 - name: ufw enable
