@@ -1,0 +1,18 @@
+# ansible-playbook -i hosts playbook_localhost_dev.yml
+
+- name: Configure localhost (DEV)
+  
+  hosts: localhost
+  connection: local
+
+  gather_facts: yes
+
+  vars_files:
+    - vars/versions.yml
+
+  pre_tasks:
+    - debug: 
+        msg: "Ansible architecture = {{ansible_architecture}}"
+
+  roles: 
+    - app-electrum
