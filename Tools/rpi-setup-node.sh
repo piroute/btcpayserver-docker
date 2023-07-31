@@ -47,10 +47,10 @@ configure_as_new() {
   DEFAULT_BTCPAY_HOST=btcpay.local
 
   while true; do
-    read -p "Bitcoin network, mainnet/testnet (default $DEFAULT_NBITCOIN_NETWORK): " NBITCOIN_NETWORK
+    read -p "Bitcoin network, mainnet/testnet/signet (default $DEFAULT_NBITCOIN_NETWORK): " NBITCOIN_NETWORK
     NBITCOIN_NETWORK=${NBITCOIN_NETWORK:-$DEFAULT_NBITCOIN_NETWORK}
     case $NBITCOIN_NETWORK in
-        mainnet|testnet ) break;;
+        mainnet|testnet|signet ) break;;
         * ) ;;
     esac
   done
@@ -254,13 +254,8 @@ fi
 
 cd /root/BTCPayNode/btcpayserver-docker/Ansible
 
-if grep -q "^/dev/mapper/md0_crypt" /etc/fstab; then
-  echo "Found pro image, running Ansible playbook_localhost_setup_pro"
-  ansible-playbook -i hosts playbook_localhost_setup_pro.yml
-else
-  echo "Found base image, running Ansible playbook_localhost_setup"
-  ansible-playbook -i hosts playbook_localhost_setup.yml
-fi
+echo "Running Ansible playbook_localhost_setup"
+ansible-playbook -i hosts playbook_localhost_setup.yml
 
 if [ $? -ne 0 ]; then
   echo "ERROR: first ansible setup failed."
