@@ -3,6 +3,8 @@ Version=1.0
 
 Type=Application
 
+Categories=Office;Finance
+
 Terminal=false
 
 Icon=/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/electrum/gui/icons/electrum.ico
