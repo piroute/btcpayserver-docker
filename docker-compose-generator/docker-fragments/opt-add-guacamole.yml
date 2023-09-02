@@ -3,13 +3,13 @@ version: "3"
 services:
   guacd:
     restart: unless-stopped
-    image: gradientskier/guacd:v1.5.1
+    image: gradientskier/guacd:v1.5.3
     # environment:
     #   GUACD_LOG_LEVEL: debug
 
   guacamole:
     restart: unless-stopped
-    image: gradientskier/guacamole:v1.5.1
+    image: gradientskier/guacamole:v1.5.3
     environment:
       GUACAMOLE_HOME: /etc/guacamole
       GUACD_HOSTNAME: guacd
