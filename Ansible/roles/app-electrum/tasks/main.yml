@@ -13,10 +13,22 @@
     state: directory
     mode: '0755'
 
+- name: Remove previous not-versioned Electrum venv
+  ansible.builtin.file:
+    path: /opt/electrum/venv
+    state: absent
+
+- name: Remove previous not-versioned Electrum requirements
+  ansible.builtin.file:
+    path: /opt/electrum/requirements.txt
+    state: absent
+
+# Install Electrum
+
 - name: Manually create the initial virtualenv
   command:
-    cmd:  python3 -m venv /opt/electrum/venv
-    creates: "/opt/electrum/venv/bin/python"
+    cmd:  python3 -m venv /opt/electrum/venv-{{versions.electrum}}
+    creates: "/opt/electrum/venv-{{versions.electrum}}/bin/python"
 
 # Activate venv with
 # source venv/bin/activate
@@ -24,51 +36,59 @@
 # pip freeze > requirements.txt
 # cp requirements.txt /root/btcpayserver-docker/Ansible/roles/electrum/files/requirements.txt
 
-- name: Copy file with owner and permissions
+- name: Copy requirements file with owner and permissions
   copy:
-    src: requirements.txt
-    dest: /opt/electrum/requirements.txt
+    src: requirements-{{versions.electrum}}.txt
+    dest: /opt/electrum/requirements-{{versions.electrum}}.txt
     mode: '0644'
 
 - name: Install requirements
   pip: 
-    requirements: /opt/electrum/requirements.txt
-    virtualenv: /opt/electrum/venv
+    requirements: /opt/electrum/requirements-{{versions.electrum}}.txt
+    virtualenv: /opt/electrum/venv-{{versions.electrum}}
 
 - name: Obtain python folder
-  shell: ls /opt/electrum/venv/lib | grep python3 | head -n 1
+  shell: ls /opt/electrum/venv-{{versions.electrum}}/lib | grep python3 | head -n 1
   args:
     executable: /bin/bash
   register: pythonFolder
   changed_when: False
 
 - debug: 
-    msg: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
+    msg: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
 
 - name: Create a symbolic link to PyQt5
   file:
     src: /usr/lib/python3/dist-packages/PyQt5
-    dest: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
+    dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
     state: link
 
 - name: Create a symbolic link to sip.cpython-39-aarch64-linux-gnu.so
   file:
     src: /usr/lib/python3/dist-packages/sip.cpython-39-aarch64-linux-gnu.so
-    dest: "/opt/electrum/venv/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-39-aarch64-linux-gnu.so"
+    dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-39-aarch64-linux-gnu.so"
     state: link
+  when: ansible_architecture == "aarch64"
 
-# sha256sum Electrum-4.0.9.tar.gz
+- name: Create a symbolic link to sip.cpython-39-x86_64-linux-gnu.so
+  file:
+    src: /usr/lib/python3/dist-packages/sip.cpython-39-x86_64-linux-gnu.so
+    dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-39-aarch64-linux-gnu.so"
+    state: link
+  when: ansible_architecture == "x86_64"
+
+# sha256sum Electrum-{{versions.electrum}}.tar.gz
 
 - name: Download electrum
   get_url:
-    url: https://download.electrum.org/4.0.9/Electrum-4.0.9.tar.gz
-    dest: /opt/electrum/Electrum-4.0.9.tar.gz
-    checksum: sha256:6a3fc11aa475fa4d1573d72116eeddae43a495443d8bfcba15c3a1139f8a72bb
+    url: https://download.electrum.org/{{versions.electrum}}/Electrum-{{versions.electrum}}.tar.gz
+    dest: /opt/electrum/Electrum-{{versions.electrum}}.tar.gz
+    checksum: "{{versions.electrum_checksum}}"
 
 - name: Install Electrum from local file
   pip:
-    name: file:///opt/electrum/Electrum-4.0.9.tar.gz
-    virtualenv: /opt/electrum/venv
+    name: file:///opt/electrum/Electrum-{{versions.electrum}}.tar.gz
+    virtualenv: /opt/electrum/venv-{{versions.electrum}}
 
 # Udev rules
 
