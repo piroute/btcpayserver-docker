@@ -47,7 +47,7 @@ services:
       - bitcoind
 
   bitcoin_rtl:
-    image: shahanafarooqui/rtl:0.14.0
+    image: shahanafarooqui/rtl:0.14.1
     restart: unless-stopped
     environment:
       LND_SERVER_URL: http://lnd_bitcoin:8080/v1
@@ -68,6 +68,9 @@ services:
       - "lnd_bitcoin_rtl_datadir:/data"
     expose:
       - "3000"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.bitcoin_rtl.rule: Host(`${BTCPAY_HOST}`) && (Path(`/rtl`) || PathPrefix(`/rtl/`))
     links:
       - lnd_bitcoin
 
