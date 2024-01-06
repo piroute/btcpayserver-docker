@@ -7,7 +7,7 @@
 set +x
 
 if [[ "$0" = "$BASH_SOURCE" ]]; then
-    echo "This script must be sourced \". btcpay-setup.sh\"" 
+    echo "This script must be sourced \". btcpay-setup.sh\""
     exit 1
 fi
 
@@ -85,6 +85,7 @@ Or, if you want to offload SSL because you have an existing web proxy, change RE
 
 Environment variables:
     BTCPAY_HOST: The hostname of your website (eg. btcpay.example.com)
+    BTCPAY_LIGHTNING_HOST: The hostname announced for your node on the lightning network (by default, the BTCPAY_HOST will be used)
     REVERSEPROXY_HTTP_PORT: The port the reverse proxy binds to for public HTTP requests. Default: 80
     REVERSEPROXY_HTTPS_PORT: The port the reverse proxy binds to for public HTTPS requests. Default: 443
     REVERSEPROXY_DEFAULT_HOST: Optional, if using a reverse proxy nginx, specify which website should be presented if the server is accessed by its IP.
@@ -182,7 +183,7 @@ if [[ -z "$BTCPAYGEN_CRYPTO1" ]]; then
     fi
 fi
 
-if [ ! -z "$BTCPAY_ADDITIONAL_HOSTS" ] && [[ "$BTCPAY_ADDITIONAL_HOSTS" == *[';']* ]]; then 
+if [ ! -z "$BTCPAY_ADDITIONAL_HOSTS" ] && [[ "$BTCPAY_ADDITIONAL_HOSTS" == *[';']* ]]; then
     echo "$BTCPAY_ADDITIONAL_HOSTS should be separated by a , not ;"
     return;
 fi
@@ -304,6 +305,7 @@ Parameters passed:
 BTCPAY_PROTOCOL:$BTCPAY_PROTOCOL
 BTCPAY_HOST:$BTCPAY_HOST
 BTCPAY_ANNOUNCE_ONION_HOST=$BTCPAY_ANNOUNCE_ONION_HOST
+BTCPAY_LIGHTNING_HOST: $BTCPAY_LIGHTNING_HOST
 BTCPAY_ADDITIONAL_HOSTS:$BTCPAY_ADDITIONAL_HOSTS
 REVERSEPROXY_HTTP_PORT:$REVERSEPROXY_HTTP_PORT
 REVERSEPROXY_HTTPS_PORT:$REVERSEPROXY_HTTPS_PORT
@@ -420,7 +422,7 @@ if ! [[ -x "$(command -v docker)" ]] || ! [[ -x "$(command -v docker-compose)" ]
     if ! [[ -x "$(command -v docker)" ]]; then
         if [[ "$(uname -m)" == "x86_64" ]] || [[ "$(uname -m)" == "armv7l" ]] || [[ "$(uname -m)" == "aarch64" ]]; then
             if [[ "$OSTYPE" == "darwin"* ]]; then
-                # Mac OS	
+                # Mac OS
                 if ! [[ -x "$(command -v brew)" ]]; then
                     # Brew is not installed, install it now
                     echo "Homebrew, the package manager for Mac OS, is not installed. Installing it now..."
@@ -449,17 +451,6 @@ if ! [[ -x "$(command -v docker)" ]] || ! [[ -x "$(command -v docker-compose)" ]
     fi
 
     docker_update
-
-    if ! [[ -x "$(command -v docker-compose)" ]]; then
-        if ! [[ "$OSTYPE" == "darwin"* ]] && $HAS_DOCKER; then
-            echo "Trying to install docker-compose by using the btcpayserver/docker-compose ($(uname -m))"
-            ! [[ -d "dist" ]] && mkdir dist
-            docker run --rm -v "$(pwd)/dist:/dist" btcpayserver/docker-compose:1.28.6
-            mv dist/docker-compose /usr/local/bin/docker-compose
-            chmod +x /usr/local/bin/docker-compose
-            rm -rf "dist"
-        fi
-    fi
 fi
 
 if $HAS_DOCKER; then
