@@ -6,12 +6,12 @@ DOCKERFILE=""
 
 
 # Build docker-compose-generator
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/linuxamd64.Dockerfile
-DOCKERFILE="docker-compose-generator/linuxamd64.Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/linuxarm32v7.Dockerfile
-[[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="docker-compose-generator/linuxarm32v7.Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/linuxarm64v8.Dockerfile
-[[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="docker-compose-generator/linuxarm64v8.Dockerfile"
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/Dockerfile
+DOCKERFILE="docker-compose-generator/Dockerfile"
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/Dockerfile
+[[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="docker-compose-generator/Dockerfile"
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver-docker/dcg-latest/docker-compose-generator/Dockerfile
+[[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="docker-compose-generator/Dockerfile"
 echo "Building btcpayserver/docker-compose-generator:latest"
 git clone https://github.com/btcpayserver/btcpayserver-docker docker-compose-generator
 cd docker-compose-generator
@@ -122,18 +122,18 @@ cd - && cd ..
 
 
 # Build lnd
-# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.3-beta/linuxamd64.Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.4-beta/linuxamd64.Dockerfile
 DOCKERFILE="linuxamd64.Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.3-beta/linuxarm32v7.Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.4-beta/linuxarm32v7.Dockerfile
 [[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="linuxarm32v7.Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.3-beta/linuxarm64v8.Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/lnd/basedon-v0.17.4-beta/linuxarm64v8.Dockerfile
 [[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="linuxarm64v8.Dockerfile"
-echo "Building btcpayserver/lnd:v0.17.3-beta"
+echo "Building btcpayserver/lnd:v0.17.4-beta"
 git clone https://github.com/btcpayserver/lnd lnd
 cd lnd
-git checkout basedon-v0.17.3-beta
+git checkout basedon-v0.17.4-beta
 cd "$(dirname $DOCKERFILE)"
-docker build -f "$DOCKERFILE" -t "btcpayserver/lnd:v0.17.3-beta" .
+docker build -f "$DOCKERFILE" -t "btcpayserver/lnd:v0.17.4-beta" .
 cd - && cd ..
 
 
@@ -194,18 +194,18 @@ cd - && cd ..
 
 
 # Build btcpayserver
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.3/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.5/Dockerfile
 DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.3/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.5/Dockerfile
 [[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.3/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/btcpayserver/v1.12.5/Dockerfile
 [[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="Dockerfile"
-echo "Building btcpayserver/btcpayserver:1.12.3$<BTCPAY_BUILD_CONFIGURATION>?"
+echo "Building btcpayserver/btcpayserver:1.12.5$<BTCPAY_BUILD_CONFIGURATION>?"
 git clone https://github.com/btcpayserver/btcpayserver btcpayserver
 cd btcpayserver
-git checkout v1.12.3
+git checkout v1.12.5
 cd "$(dirname $DOCKERFILE)"
-docker build -f "$DOCKERFILE" -t "btcpayserver/btcpayserver:1.12.3$<BTCPAY_BUILD_CONFIGURATION>?" .
+docker build -f "$DOCKERFILE" -t "btcpayserver/btcpayserver:1.12.5$<BTCPAY_BUILD_CONFIGURATION>?" .
 cd - && cd ..
 
 
@@ -400,34 +400,34 @@ cd - && cd ..
 
 
 # Build nbxplorer
-# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.4.5/Dockerfile
+# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.5.2/Dockerfile
 DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.4.5/Dockerfile
+# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.5.2/Dockerfile
 [[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.4.5/Dockerfile
+# https://raw.githubusercontent.com/dgarage/nbxplorer/v2.5.2/Dockerfile
 [[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="Dockerfile"
-echo "Building nicolasdorier/nbxplorer:2.4.5"
+echo "Building nicolasdorier/nbxplorer:2.5.2"
 git clone https://github.com/dgarage/nbxplorer nbxplorer
 cd nbxplorer
-git checkout v2.4.5
+git checkout v2.5.2
 cd "$(dirname $DOCKERFILE)"
-docker build -f "$DOCKERFILE" -t "nicolasdorier/nbxplorer:2.4.5" .
+docker build -f "$DOCKERFILE" -t "nicolasdorier/nbxplorer:2.5.2" .
 cd - && cd ..
 
 
 # Build letsencrypt-nginx-proxy-companion
-# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-1/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-2/Dockerfile
 DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-1/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-2/Dockerfile
 [[ "$(uname -m)" == "armv7l" ]] && DOCKERFILE="Dockerfile"
-# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-1/Dockerfile
+# https://raw.githubusercontent.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion/v2.2.9-2/Dockerfile
 [[ "$(uname -m)" == "aarch64" ]] && DOCKERFILE="Dockerfile"
-echo "Building btcpayserver/letsencrypt-nginx-proxy-companion:2.2.9-1"
+echo "Building btcpayserver/letsencrypt-nginx-proxy-companion:2.2.9-2"
 git clone https://github.com/btcpayserver/docker-letsencrypt-nginx-proxy-companion letsencrypt-nginx-proxy-companion
 cd letsencrypt-nginx-proxy-companion
-git checkout v2.2.9-1
+git checkout v2.2.9-2
 cd "$(dirname $DOCKERFILE)"
-docker build -f "$DOCKERFILE" -t "btcpayserver/letsencrypt-nginx-proxy-companion:2.2.9-1" .
+docker build -f "$DOCKERFILE" -t "btcpayserver/letsencrypt-nginx-proxy-companion:2.2.9-2" .
 cd - && cd ..
 
 
