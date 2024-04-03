@@ -23,5 +23,5 @@
   tasks:
     - name: Install node system dependencies
       apt:
-        name: ['jq']
+        name: ['jq', 'xrdp']
         state: present
