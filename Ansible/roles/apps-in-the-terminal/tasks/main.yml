@@ -49,7 +49,7 @@
     dest: "{{paths.apps}}/Shutdown.desktop"
     mode: '0755'
 
-#    
+#
 # Rpi terminal apps
 #
 
@@ -82,6 +82,11 @@
 # Lnd Derivations scheme
 #
 
+- name: Install lnd derivation scheme apt dependencies
+  apt:
+    name: ['build-essential', 'python3-venv' , 'python3-virtualenv']
+    state: present
+
 - name: Include go role
   include_role:
     name: go
@@ -105,7 +110,7 @@
     creates: "/root/BTCPayNode/btcpayserver-docker/Tools/python/venv/bin/python"
 
 - name: Install lnd_derivation_scheme python dependencies with pip
-  pip: 
+  pip:
     requirements: /root/BTCPayNode/btcpayserver-docker/Tools/python/requirements.txt
     virtualenv: /root/BTCPayNode/btcpayserver-docker/Tools/python/venv
 
