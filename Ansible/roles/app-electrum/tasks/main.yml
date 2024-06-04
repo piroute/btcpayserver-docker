@@ -1,8 +1,8 @@
 - name: Install electrum dependencies
-  apt: 
+  apt:
     name: [
       'python3-pyqt5', 'python3-sip', 'python3-setuptools', 'python3-pip',  'python3-venv', 'python3-cryptography', 'python3-dev',
-      'libsecp256k1-0', 
+      '{{apt_libsecp256k1}}',
       'libusb-1.0-0-dev', 'libudev-dev'
     ]
     state: present
@@ -43,7 +43,7 @@
     mode: '0644'
 
 - name: Install requirements
-  pip: 
+  pip:
     requirements: /opt/electrum/requirements-{{versions.electrum}}.txt
     virtualenv: /opt/electrum/venv-{{versions.electrum}}
 
@@ -54,7 +54,7 @@
   register: pythonFolder
   changed_when: False
 
-- debug: 
+- debug:
     msg: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
 
 - name: Create a symbolic link to PyQt5
@@ -63,17 +63,17 @@
     dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/PyQt5"
     state: link
 
-- name: Create a symbolic link to sip.cpython-39-aarch64-linux-gnu.so
+- name: Create a symbolic link to python3-sip
   file:
     src: /usr/lib/python3/dist-packages/sip.cpython-39-aarch64-linux-gnu.so
     dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-39-aarch64-linux-gnu.so"
     state: link
   when: ansible_architecture == "aarch64"
 
-- name: Create a symbolic link to sip.cpython-39-x86_64-linux-gnu.so
+- name: Create a symbolic link to python3-sip
   file:
-    src: /usr/lib/python3/dist-packages/sip.cpython-39-x86_64-linux-gnu.so
-    dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-39-aarch64-linux-gnu.so"
+    src: /usr/lib/python3/dist-packages/sip.cpython-311-x86_64-linux-gnu.so
+    dest: "/opt/electrum/venv-{{versions.electrum}}/lib/{{pythonFolder.stdout}}/site-packages/sip.cpython-311-x86_64-linux-gnu.so"
     state: link
   when: ansible_architecture == "x86_64"
 
@@ -120,7 +120,7 @@
     executable: /bin/bash
 
 # Desktop file validate
-# desktop-file-validate /opt/apps/Electrum.desktop 
+# desktop-file-validate /opt/apps/Electrum.desktop
 # Should be trusted by each user with
 # gio set /opt/apps/Electrum.desktop "metadata::trusted" yes
 
@@ -129,7 +129,7 @@
     path: "{{paths.apps}}"
     state: directory
     mode: '0755'
-    
+
 - name: Remove old apps Electrum desktop file
   ansible.builtin.file:
     path: "{{paths.apps}}/Electrum.desktop"
