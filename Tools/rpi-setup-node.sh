@@ -47,10 +47,10 @@ configure_as_new() {
   DEFAULT_BTCPAY_HOST=btcpay.local
 
   while true; do
-    read -p "Bitcoin network, mainnet/testnet (default $DEFAULT_NBITCOIN_NETWORK): " NBITCOIN_NETWORK
+    read -p "Bitcoin network, mainnet/testnet/signet (default $DEFAULT_NBITCOIN_NETWORK): " NBITCOIN_NETWORK
     NBITCOIN_NETWORK=${NBITCOIN_NETWORK:-$DEFAULT_NBITCOIN_NETWORK}
     case $NBITCOIN_NETWORK in
-        mainnet|testnet ) break;;
+        mainnet|testnet|signet ) break;;
         * ) ;;
     esac
   done
