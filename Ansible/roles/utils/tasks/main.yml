@@ -11,3 +11,8 @@
     - "/root/.bashrc"
     - "/home/{{username}}/.bashrc"
 
+- name: Install htop
+  apt:
+    name: ['htop']
+    state: latest
+
