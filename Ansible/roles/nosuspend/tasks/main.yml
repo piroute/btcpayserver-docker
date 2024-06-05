@@ -1,0 +1,7 @@
+- name: Do not allow suspend
+  template:
+    src: nosuspend.conf.tmpl
+    dest: /etc/systemd/sleep.conf
+
+
+# sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target

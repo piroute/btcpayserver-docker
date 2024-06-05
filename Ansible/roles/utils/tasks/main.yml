@@ -15,4 +15,3 @@
   apt:
     name: ['htop']
     state: latest
-

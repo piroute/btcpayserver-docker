@@ -19,6 +19,7 @@
   roles:
     - ufw
     - utils
+    - nosuspend
 
   tasks:
     - name: Install node system dependencies
