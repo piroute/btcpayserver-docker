@@ -305,3 +305,6 @@ Generated/error
 
 # DS_Store ignore
 .DS_Store
+
+# Ignore error file
+error
