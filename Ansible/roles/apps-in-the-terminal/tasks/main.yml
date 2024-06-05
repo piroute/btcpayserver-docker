@@ -58,7 +58,6 @@
     path: "/root/BTCPayNode/btcpayserver-docker/Tools/{{item}}"
     mode: '0755'
   with_items:
-    - rpi-check-filesystem.sh
     - rpi-change-configuration.sh
     - rpi-change-passwords.sh
     - rpi-check-system-info.sh
