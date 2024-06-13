@@ -1,7 +1,7 @@
-# ansible-playbook -i hosts playbook_localhost_setup_pro.yml
+# ansible-playbook -i hosts playbook_localhost_setup_pi.yml
 
 - name: Configure localhost (PRE)
-  
+
   hosts: localhost
   connection: local
 
@@ -10,9 +10,9 @@
 
   vars_files:
     - vars/versions.yml
-  
+
   pre_tasks:
-  
+
   # Add comments only during development
     - name: apt-get update with allow-releaseinfo-change
       command:
@@ -23,10 +23,10 @@
     #
 
     - name: Install growpart
-      apt: 
+      apt:
         name: ['cloud-guest-utils']
         state: latest
- 
+
     - name: Extend the btrfs partitions to max
       shell: |
         growpart /dev/sda 2
@@ -52,13 +52,13 @@
         part_end: 100%
         state: present
       when: microsd_drive.stat.exists
-    
+
     - name: Create a fat filesystem on the microsd
       community.general.filesystem:
         fstype: vfat
         dev: /dev/mmcblk0p1
       when: microsd_drive.stat.exists
-    
+
     - name: Create backup directory if it does not exist
       ansible.builtin.file:
         path: "{{paths.backups}}"
@@ -73,7 +73,7 @@
         opts: defaults,uid=1000,gid=1000,noatime,nofail
         state: mounted
       when: microsd_drive.stat.exists
-  
+
   roles:
     - swap
     - ufw

@@ -41,7 +41,7 @@ configure_as_new() {
   echo "|      New node      |"
   echo " -------------------- "
   echo ""
-  
+
   DEFAULT_NBITCOIN_NETWORK=mainnet
   DEFAULT_LIGHTNING_ALIAS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n 1)
   DEFAULT_BTCPAY_HOST=btcpay.local
@@ -54,7 +54,7 @@ configure_as_new() {
         * ) ;;
     esac
   done
-  
+
   while true; do
     read -p "Your public nick on the lightning network, (default $DEFAULT_LIGHTNING_ALIAS): " LIGHTNING_ALIAS
     LIGHTNING_ALIAS=${LIGHTNING_ALIAS:-$DEFAULT_LIGHTNING_ALIAS}
@@ -62,7 +62,7 @@ configure_as_new() {
         * ) break;;
     esac
   done
-  
+
   while true; do
     read -p "Your node hostname, (default $DEFAULT_BTCPAY_HOST): " BTCPAY_HOST
     BTCPAY_HOST=${BTCPAY_HOST:-$DEFAULT_BTCPAY_HOST}
@@ -146,7 +146,7 @@ restore_from_backup() {
   NODE_BACKUP_INFO_VERSION=$(grep BACKUP_INFO_VERSION $BACKUP_PATH/$BACKUP_INFO_PATH | cut -d '=' -f2)
   BACKUP_VERSION=2
   case $NODE_BACKUP_INFO_VERSION in
-    1 ) 
+    1 )
       GIT_BRANCH=$(grep GIT_BRANCH $BACKUP_PATH/$BACKUP_INFO_PATH | cut -d '=' -f2)
       case $GIT_BRANCH in
 	      "prod" ) BACKUP_VERSION=1 ;;
@@ -184,7 +184,7 @@ restore_from_backup() {
   export BTCPAY_HOST
 }
 
-# 
+#
 # Start
 #
 
@@ -252,21 +252,6 @@ if [ $? -ne 0 ]; then
   read -n1 -p "Press any key to exit..." && exit 1
 fi
 
-cd /root/BTCPayNode/btcpayserver-docker/Ansible
-
-if grep -q "^/dev/mapper/md0_crypt" /etc/fstab; then
-  echo "Found pro image, running Ansible playbook_localhost_setup_pro"
-  ansible-playbook -i hosts playbook_localhost_setup_pro.yml
-else
-  echo "Found base image, running Ansible playbook_localhost_setup"
-  ansible-playbook -i hosts playbook_localhost_setup.yml
-fi
-
-if [ $? -ne 0 ]; then
-  echo "ERROR: first ansible setup failed."
-  read -n1 -p "Press any key to exit..." && exit 1
-fi
-
 #
 # Btcpay configuration
 #
@@ -287,7 +272,7 @@ else
   # If we use a backup then we use the existing configuration script
   echo "Restoring backup ..."
   tar -xpzf $BACKUP_TAR_PATH -C / --numeric-owner --keep-newer-files --warning=no-ignore-newer
-  
+
   case $BACKUP_VERSION in
     1 )
     # Perform migration from v1 backup to current version
@@ -298,10 +283,10 @@ else
     2 )
     # Perform migration from v2 backup to current version
     ;;
-    * ) 
+    * )
     ;;
   esac
-  
+
   echo "... Backup restored, starting with btcpay configuration!"
 fi
 

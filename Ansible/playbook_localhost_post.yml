@@ -1,10 +1,10 @@
 # source /root/BTCPayNode/node_configuration_script.sh && ansible-playbook -i hosts playbook_localhost_post.yml
 
 - name: Configure localhost (POST)
-  
+
   hosts: localhost
   connection: local
-  
+
   # Set to no only during development
   gather_facts: yes
 
@@ -12,16 +12,16 @@
     - vars/versions.yml
 
   pre_tasks:
-    - debug: 
+    - debug:
         msg: "BTCPAY_BASE_DIRECTORY = {{ lookup('env','BTCPAY_BASE_DIRECTORY') }}"
 
-    - debug: 
+    - debug:
         msg: "NBITCOIN_NETWORK = {{ lookup('env','NBITCOIN_NETWORK') }}"
 
-    - debug: 
+    - debug:
         msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
 
-  roles: 
+  roles:
     - lnd-channels-backup
     - apps-in-the-terminal
     - app-electrum
@@ -29,7 +29,6 @@
     - wireguard
 
   tasks:
-
     - name: Create a line in /etc/hosts for BTCPAY_HOST
       lineinfile:
         path: /etc/hosts

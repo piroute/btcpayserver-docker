@@ -13,8 +13,9 @@
       command:
         cmd: apt-get update --allow-releaseinfo-change
 
-  roles: 
+  roles:
     - ufw
+    - utils
 
   tasks:
     - name: Install node system dependencies
