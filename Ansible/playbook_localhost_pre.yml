@@ -1,12 +1,12 @@
 # ansible-playbook -i hosts playbook_localhost_pre.yml
 
 - name: Configure localhost (PRE)
-  
+
   hosts: localhost
   connection: local
 
   pre_tasks:
-    - debug: 
+    - debug:
         msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
 
     - name: apt-get update with allow-releaseinfo-change
@@ -19,6 +19,6 @@
 
   tasks:
     - name: Install node system dependencies
-      apt: 
+      apt:
         name: ['jq']
         state: present

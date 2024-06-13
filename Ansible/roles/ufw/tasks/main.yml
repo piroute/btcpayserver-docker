@@ -1,106 +1,78 @@
 - name: Install ufw (firewall) and fail2ban (ban invalid ssh login attempts)
-  apt: 
+  apt:
     name: ['ufw', 'fail2ban']
     state: present
 
-- set_fact:    
-    bridge_network_ID: br-btcpayserver
+- set_fact:
+    interface_docker_bridge: br-btcpayserver
+    interfaces_host: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth).*' )) | sort ) }}"
 
-- name: Create temporary build directory
-  ansible.builtin.tempfile:
-    state: directory
-  register: tmp_folder
-  changed_when: false
-
-- debug: 
-    msg: "tmp_folder = {{tmp_folder}}"
+- debug:
+    msg: "docker bridge = {{interface_docker_bridge}}, other interfaces = {{interfaces_host}}"
 
 - template:
-    src: expected_ufw_output.txt.tmpl
-    dest: "{{tmp_folder.path}}/expected_ufw_output.txt"
-  changed_when: false
+    src: ufw-lightning.j2
+    dest: "/etc/ufw/applications.d/ufw-lightning"
 
-- name:
-  shell: |
-    ufw status numbered | grep -w '^\[[ 0-9][0-9].*' > {{tmp_folder.path}}/actual_ufw_output.txt
-    DO_NOT_RESET=true
-    [ "$(ufw status verbose | awk 'NR==3')" == "Default: deny (incoming), allow (outgoing), deny (routed)" ] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
-    diff -q {{tmp_folder.path}}/actual_ufw_output.txt {{tmp_folder.path}}/expected_ufw_output.txt 1> /dev/null
-    [[ $?  == "0" ]] && DO_NOT_RESET=$DO_NOT_RESET || DO_NOT_RESET=false
-    $DO_NOT_RESET && echo "false" || echo "true"
-  args:
-    executable: /bin/bash
-  register: shell_registered_var
-  changed_when: shell_registered_var.stdout|bool
-
-- ansible.builtin.file:
-    path: "{{ tmp_folder.path }}"
-    state: absent
-  changed_when: false
-
-- set_fact:    
-    ufw_reset: "{{ shell_registered_var.stdout|bool }}"
-
-- debug: 
-    msg: "shell_registered_var.stdout = {{shell_registered_var.stdout}} and ufw_reset = {{ ufw_reset }}"
-
-- name: ufw reset
-  shell: ufw --force reset
-  when: ufw_reset
+- template:
+    src: ufw-remote-desktop.j2
+    dest: "/etc/ufw/applications.d/ufw-remote-desktop"
 
 - name: ufw default deny incoming
-  shell: ufw default deny incoming
-  when: ufw_reset
+  community.general.ufw:
+    state: enabled
+    default: deny
+    direction: incoming
 
 - name: ufw default allow outgoing
-  shell: ufw default allow outgoing
-  when: ufw_reset
+  community.general.ufw:
+    default: allow
+    direction: outgoing
 
 - name: ufw allow ssh
-  shell: |
-    ufw allow in on eth0 to any port 22 proto tcp
-    ufw allow in on wlan0 to any port 22 proto tcp
-    ufw allow in on br-btcpayserver to any port 22 proto tcp
-  when: ufw_reset
-
-# This is kept here only for documentation
-# - name: ufw allow ssh and remote desktop connections from within guacd container
-#   shell: |
-#     {% raw %}
-#     BRIDGE_NETWORK_NAME=$(docker network ls | grep bridge | grep generated_default | awk '{print $1}')
-#     [ ! -z "$BRIDGE_NETWORK_NAME" ] && ufw allow in on br-$BRIDGE_NETWORK_NAME to any port 22 proto tcp || true
-#     {% endraw %}
-#   when: ufw_reset
-
-- name: ufw allow http
-  shell: ufw allow http
-  when: ufw_reset
-
-- name: ufw allow https
-  shell: ufw allow https
-  when: ufw_reset
-
-- name: ufw allow dns
-  shell: |
-    ufw allow in on eth0 to any port 53 proto tcp
-    ufw allow in on wlan0 to any port 53 proto tcp
-    ufw allow in on eth0 to any port 53 proto udp
-    ufw allow in on wlan0 to any port 53 proto udp
-  when: ufw_reset
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+    interface_in: "{{item}}"
+  with_items:
+    - "{{interface_docker_bridge}}"
+    - "{{interfaces_host}}"
 
 - name: ufw allow remote desktop
-  shell: |
-    ufw allow in on eth0 to any port 3389 proto tcp
-    ufw allow in on wlan0 to any port 3389 proto tcp
-    ufw allow in on br-btcpayserver to any port 3389 proto tcp || true
-  when: ufw_reset
+  community.general.ufw:
+    rule: allow
+    name: "RDP"
+    interface_in: "{{item}}"
+  with_items:
+      - "{{interface_docker_bridge}}"
+      - "{{interfaces_host}}"
+
+- name: ufw delete allow http and https on all interfaces
+  community.general.ufw:
+    rule: allow
+    name: WWW Full
+    delete: true
+
+- name: ufw allow http and https
+  community.general.ufw:
+    rule: allow
+    name: "WWW Full"
+    interface_in: "{{item}}"
+  with_items:
+      - "{{interfaces_host}}"
+
+- name: ufw allow dns
+  community.general.ufw:
+    rule: allow
+    name: "DNS"
+    interface_in: "{{item}}"
+  with_items:
+      - "{{interfaces_host}}"
 
 - name: ufw allow lightning
-  shell: |
-    ufw allow in on eth0 to any port 9735 proto tcp
-    ufw allow in on wlan0 to any port 9735 proto tcp
-  when: ufw_reset
-
-- name: ufw enable
-  shell: ufw --force enable
-  when: ufw_reset
+  community.general.ufw:
+    rule: allow
+    name: "Lightning"
+    interface_in: "{{item}}"
+  with_items:
+      - "{{interfaces_host}}"
