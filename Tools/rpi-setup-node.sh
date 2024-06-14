@@ -265,9 +265,9 @@ echo ""
 if $CONFIGURE_AS_NEW; then
   # If we configure as new we create the configuration script
   echo "export NBITCOIN_NETWORK=$NBITCOIN_NETWORK
-  export LIGHTNING_ALIAS=$LIGHTNING_ALIAS
-  export BTCPAY_HOST=$BTCPAY_HOST
-  " > /root/BTCPayNode/node_configuration_script.sh
+export LIGHTNING_ALIAS=$LIGHTNING_ALIAS
+export BTCPAY_HOST=$BTCPAY_HOST
+" > /root/BTCPayNode/node_configuration_script.sh
 else
   # If we use a backup then we use the existing configuration script
   echo "Restoring backup ..."
