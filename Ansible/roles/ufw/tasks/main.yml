@@ -3,10 +3,6 @@
     name: ['ufw', 'fail2ban']
     state: present
 
-- set_fact:
-    interface_docker_bridge: br-btcpayserver
-    interfaces_host: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth).*' )) | sort ) }}"
-
 - debug:
     msg: "docker bridge = {{interface_docker_bridge}}, other interfaces = {{interfaces_host}}"
 
@@ -38,11 +34,12 @@
     - "{{interface_docker_bridge}}"
     - "{{interfaces_host}}"
 
-- name: ufw allow remote desktop
+- name: ufw delete allow remote desktop
   community.general.ufw:
     rule: allow
     name: "RDP"
     interface_in: "{{item}}"
+    delete: true
   with_items:
       - "{{interface_docker_bridge}}"
       - "{{interfaces_host}}"

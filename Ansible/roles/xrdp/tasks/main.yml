@@ -1,0 +1,13 @@
+- name: Install xrdp
+  apt:
+    name: ['xrdp']
+    state: present
+
+- name: ufw allow remote desktop
+  community.general.ufw:
+    rule: allow
+    name: "RDP"
+    interface_in: "{{item}}"
+  with_items:
+    - "{{interface_docker_bridge}}"
+    - "{{interfaces_host}}"
