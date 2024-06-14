@@ -4,7 +4,10 @@
 
 - name: Set ll alias
   lineinfile:
-    path: /root/.bashrc
+    path: "{{item}}"
     regexp: '^alias ll='
-    line: alias ll='ls $LS_OPTIONS -lahi'
+    line: alias ll='ls $LS_OPTIONS -lah'
+  with_items:
+    - "/root/.bashrc"
+    - "/home/{{username}}/.bashrc"
 

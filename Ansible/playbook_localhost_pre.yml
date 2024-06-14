@@ -5,6 +5,9 @@
   hosts: localhost
   connection: local
 
+  vars_files:
+    - vars/versions.yml
+
   pre_tasks:
     - debug:
         msg: "BTCPAY_HOST = {{ lookup('env','BTCPAY_HOST') }}"
