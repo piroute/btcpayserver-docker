@@ -188,7 +188,11 @@ restore_from_backup() {
 # Start
 #
 
+cd /home/debian/btcpayserver-docker
+mkdir -p /root/BTCPayNode
+ln -sfn /home/debian/btcpayserver-docker /root/BTCPayNode/
 cd /root/BTCPayNode/btcpayserver-docker
+git config --global --add safe.directory /home/debian/btcpayserver-docker
 
 # Preliminary checks on user and internet connection
 preliminary_checks
