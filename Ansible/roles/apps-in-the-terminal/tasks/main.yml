@@ -87,22 +87,9 @@
     name: ['build-essential', 'python3-venv' , 'python3-virtualenv']
     state: present
 
-- name: Include go role
+- name: Include chantools role
   include_role:
-    name: go
-
-- name: Git clone chantools
-  git:
-    repo: https://github.com/guggero/chantools.git
-    dest: /opt/chantools
-    version: "{{versions.chantools}}"
-  register: clone_chantools_repo
-
-- name: Make install chantools
-  command: make install
-  args:
-    chdir: /opt/chantools
-  when: clone_chantools_repo.changed
+    name: chantools
 
 - name: Manually create the initial virtualenv
   command:
