@@ -15,3 +15,9 @@
   args:
     chdir: /opt/chantools
   when: clone_chantools_repo.changed
+
+# Awaiting for
+# https://github.com/lightninglabs/chantools/pull/95
+# for recovery with
+# https://github.com/lightningnetwork/lnd/blob/master/docs/recovery.md
+
