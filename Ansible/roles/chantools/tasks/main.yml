@@ -1,0 +1,17 @@
+- name: Include go role
+  include_role:
+    name: go
+
+- name: Git clone chantools
+  git:
+    repo: https://github.com/guggero/chantools.git
+    dest: /opt/chantools
+    version: "{{versions.chantools}}"
+    force: true
+  register: clone_chantools_repo
+
+- name: Make install chantools
+  command: make install
+  args:
+    chdir: /opt/chantools
+  when: clone_chantools_repo.changed
