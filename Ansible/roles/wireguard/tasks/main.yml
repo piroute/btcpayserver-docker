@@ -1,5 +1,5 @@
 - name: Always install wireguard
-  apt: 
+  apt:
     name: ['wireguard']
     state: present
 
@@ -8,19 +8,19 @@
     wireguard_server_endpoint: "{{ lookup('env','WIREGUARD_SERVER_ENDPOINT') }}"
     wireguard_server_pubkey: "{{ lookup('env','WIREGUARD_SERVER_PUBKEY') }}"
 
-- debug: 
+- debug:
     msg: "WIREGUARD_PEER_IP = {{ wireguard_peer_ip }}"
 
-- debug: 
+- debug:
     msg: "WIREGUARD_SERVER_ENDPOINT = {{ wireguard_server_endpoint }}"
 
-- debug: 
+- debug:
     msg: "WIREGUARD_SERVER_PUBKEY = {{ wireguard_server_pubkey }}"
 
-- set_fact:    
+- set_fact:
     wireguard_install: "{{ not (wireguard_peer_ip == '' or wireguard_server_endpoint == '' or wireguard_server_pubkey == '') }}"
 
-- debug: 
+- debug:
     msg: "WIREGUARD_INSTALL = {{ wireguard_install }}"
 
 - name: Register if wireguard private key already exists on target host
@@ -47,7 +47,7 @@
 
 - name: Create wireguard pi directory if it does not exist
   file:
-    path: "/home/pi/wireguard"
+    path: "{{paths.home}}/wireguard"
     state: directory
     owner: pi
     group: pi
@@ -55,10 +55,10 @@
   when: wireguard_install
 
 - name: Copy wireguard pubkey to pi home folder
-  copy: 
+  copy:
     remote_src: True
     src: /opt/rpi_vault/wireguard_pubkey
-    dest: /home/pi/wireguard/pubkey.txt
+    dest: "{{paths.home}}/wireguard/pubkey.txt"
     owner: pi
     group: pi
   when: wireguard_install
@@ -70,7 +70,7 @@
   when: wireguard_install
 
 - name: Start and enable wireguard
-  systemd: 
+  systemd:
     name: wg-quick@wg0
     state: restarted
     enabled: yes
@@ -78,7 +78,7 @@
   when: wireguard_install
 
 - name: Stop and disable wireguard
-  systemd: 
+  systemd:
     name: wg-quick@wg0
     state: stopped
     enabled: no
