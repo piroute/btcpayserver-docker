@@ -1,18 +1,18 @@
+username: "{{ 'pi' if ansible_architecture == 'aarch64' else 'debian' if ansible_architecture == 'x86_64' else 'undefined' }}"
+
 paths:
   apps: /opt/apps
   backups: /opt/backups
+  home: "/home/{{username}}"
   rpi_vault: /opt/rpi_vault
   sda3_luks_keyfile: /opt/rpi_vault/sda3_luks_keyfile
   wireguard_keyfile: /opt/rpi_vault/wireguard_keyfile
-
-username: "{{ 'pi' if ansible_architecture == 'aarch64' else 'debian' if ansible_architecture == 'x86_64' else 'undefined' }}"
 
 versions:
   electrum: 4.4.6
   electrum_checksum: sha256:071c42d7154a4e8523801a3898478af537616ddffe7681dc4d326c5c3b5a10b8
   chantools: v0.9.2
   go: 1.13
-
 
 # Name of the libsecp256k1 package in apt repositories
 apt_libsecp256k1: "{{ 'libsecp256k1-0' if ansible_architecture == 'aarch64' else 'libsecp256k1-1' if ansible_architecture == 'x86_64' else 'undefined' }}"
