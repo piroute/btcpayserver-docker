@@ -1,56 +1,10 @@
-- debug: 
+- debug:
     msg: "proxy_to_tor_hosts = {{ proxy_to_tor_hosts }}"
 
 - name: Install requirements
-  apt: 
-    name: ['certbot', 'nginx', 'wireguard','socat', 'tor']
+  apt:
+    name: ['certbot', 'nginx', 'socat', 'tor']
     state: present
-
-# Configure wireguard newtork
-
-- name: Create a directory if it does not exist
-  ansible.builtin.file:
-    path: "{{paths.rpi_vault}}"
-    state: directory
-    mode: '0700'
-    
-- name: Register if wireguard private key already exists on target host
-  ansible.builtin.stat:
-    path: "{{ paths.wireguard_keyfile }}"
-  register: wireguard_register_stat_keyfile
-  
-- name: Generate wireguard private key
-  ansible.builtin.shell: |
-    touch {{paths.wireguard_keyfile}}
-    chmod 400 {{paths.wireguard_keyfile}}
-    wg genkey > {{paths.wireguard_keyfile}}
-  args:
-    executable: /bin/bash
-  when: not wireguard_register_stat_keyfile.stat.exists
-
-- name: Copy wg0 file
-  template:
-    src: wireguard/wg0.conf.tmpl
-    dest: "/etc/wireguard/wg0.conf"
-
-- name: Copy postup.sh
-  copy:
-    src: wireguard/postup.sh
-    dest: "/etc/wireguard/postup.sh"
-    mode: '0755'
-
-- name: Copy postdown.sh
-  copy:
-    src: wireguard/postdown.sh
-    dest: "/etc/wireguard/postdown.sh"
-    mode: '0755'
-
-- name: Start wireguard
-  systemd: 
-    name: wg-quick@wg0
-    state: restarted
-    enabled: yes
-    daemon_reload: yes
 
 # Configure tor network
 
@@ -83,7 +37,7 @@
   loop: "{{proxy_to_tor_hosts}}"
 
 - name: Start and enable http-to-socks-proxy@{{item.proxy_sink}}
-  systemd: 
+  systemd:
     name: http-to-socks-proxy@{{item.proxy_sink}}
     state: restarted
     enabled: yes
@@ -131,7 +85,7 @@
     state: link
 
 - name: ...And restarting nginx
-  systemd: 
+  systemd:
     name: nginx
     state: restarted
 
@@ -155,13 +109,13 @@
   lineinfile:
     dest: /etc/letsencrypt/cli.ini
     line: "deploy-hook = systemctl reload nginx"
-    
+
 - name:  Create a config file for the domain with https
   template:
     src: "nginx/btcpayserver_after_certificate.conf.tmpl"
     dest: "/etc/nginx/sites-available/btcpayserver.conf"
 
 - name: Restart nginx once more
-  systemd: 
+  systemd:
     name: nginx
     state: restarted
