@@ -50,11 +50,12 @@
         update_cache: yes
 
   roles:
-    - role: nginx-reverse-proxy-to-tor
-      proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
+    - role: ufw
+    # - role: nginx-reverse-proxy-to-tor
+    # proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
 
   tasks:
-    # **** Add swap
+    # VERY IMPORTANT: Add swap if the proxy machine is resource limited.
     - name: set swap_file variable
       set_fact:
         swap_file: /swapfile1G.swap
@@ -86,3 +87,4 @@
     - name: turn on swap
       command: swapon -a
     # Add swap end ****
+

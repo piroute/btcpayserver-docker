@@ -19,4 +19,4 @@ apt_libsecp256k1: "{{ 'libsecp256k1-0' if ansible_architecture == 'aarch64' else
 
 # Network interfaces
 interface_docker_bridge: br-btcpayserver
-interfaces_host: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth).*' )) | sort ) }}"
+interfaces_host: "{{ (ansible_facts.interfaces | difference(ansible_facts.interfaces | map('regex_search', '^(lo|br-btcpayserver|docker|veth|wg).*' )) | sort ) }}"

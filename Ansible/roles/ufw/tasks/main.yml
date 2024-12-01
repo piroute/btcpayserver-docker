@@ -14,6 +14,10 @@
     src: ufw-remote-desktop.j2
     dest: "/etc/ufw/applications.d/ufw-remote-desktop"
 
+- template:
+    src: ufw-wireguard.j2
+    dest: "/etc/ufw/applications.d/ufw-wireguard"
+
 - name: ufw default deny incoming
   community.general.ufw:
     state: enabled
@@ -31,7 +35,6 @@
     name: OpenSSH
     interface_in: "{{item}}"
   with_items:
-    - "{{interface_docker_bridge}}"
     - "{{interfaces_host}}"
 
 - name: ufw delete allow remote desktop
@@ -44,17 +47,12 @@
       - "{{interface_docker_bridge}}"
       - "{{interfaces_host}}"
 
-- name: ufw delete allow http and https on all interfaces
-  community.general.ufw:
-    rule: allow
-    name: WWW Full
-    delete: true
-
 - name: ufw allow http and https
   community.general.ufw:
     rule: allow
     name: "WWW Full"
     interface_in: "{{item}}"
+    delete: true
   with_items:
       - "{{interfaces_host}}"
 
@@ -63,6 +61,7 @@
     rule: allow
     name: "DNS"
     interface_in: "{{item}}"
+    delete: true
   with_items:
       - "{{interfaces_host}}"
 
@@ -71,5 +70,22 @@
     rule: allow
     name: "Lightning"
     interface_in: "{{item}}"
+    delete: true
   with_items:
       - "{{interfaces_host}}"
+
+- name: ufw allow wireguard
+  community.general.ufw:
+    rule: allow
+    name: "Wireguard"
+    interface_in: "{{item}}"
+  with_items:
+      - "{{interfaces_host}}"
+
+- name: Allow all wireguard proxies
+  community.general.ufw:
+    rule: allow
+    port: "{{item.1.1.proxy_source}}"
+    interface_in: "{{item.0}}"
+    proto: tcp
+  loop: "{{ interfaces_host | product(proxy_to_lightning_hosts|enumerate) | list }}"
