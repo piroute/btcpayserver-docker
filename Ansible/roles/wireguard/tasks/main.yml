@@ -29,6 +29,11 @@
   register: wireguard_register_stat_keyfile
   when: wireguard_install
 
+- name: Create vault directory if it does not exist
+  ansible.builtin.file:
+    path: "{{paths.rpi_vault}}"
+    state: directory
+
 - name: Generate wireguard private key
   ansible.builtin.shell: |
     touch {{paths.wireguard_keyfile}}
@@ -40,27 +45,27 @@
 
 - name: Derive wireguard public key
   ansible.builtin.shell: |
-    wg pubkey < {{paths.wireguard_keyfile}} > /opt/rpi_vault/wireguard_pubkey
+    wg pubkey < {{paths.wireguard_keyfile}} > {{paths.rpi_vault}}/wireguard_pubkey
   args:
     executable: /bin/bash
   when: wireguard_install
 
-- name: Create wireguard pi directory if it does not exist
+- name: Create wireguard user directory if it does not exist
   file:
     path: "{{paths.home}}/wireguard"
     state: directory
-    owner: pi
-    group: pi
+    owner: "{{username}}"
+    group: "{{username}}"
     mode: '0751'
   when: wireguard_install
 
-- name: Copy wireguard pubkey to pi home folder
+- name: Copy wireguard pubkey to user home folder
   copy:
     remote_src: True
-    src: /opt/rpi_vault/wireguard_pubkey
+    src: "{{paths.rpi_vault}}/wireguard_pubkey"
     dest: "{{paths.home}}/wireguard/pubkey.txt"
-    owner: pi
-    group: pi
+    owner: "{{username}}"
+    group: "{{username}}"
   when: wireguard_install
 
 - name: Copy wg0 file
