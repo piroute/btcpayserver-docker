@@ -3,7 +3,12 @@
 # was
 # ansible-playbook -i hosts --extra-vars  "@../../proxy_to_tor_hosts.yml" debian_reverse_proxy.yml
 
-# debian_reverse_proxy.yml
+# proxies.yml
+#
+# wireguard_hosts:
+#   - client_name: btcpaydev
+#     client_ip: 10.200.200.2
+#     client_pubkey: mO/e0dL7mvreXKxhAGfdskormU/C7/M25kTX4=
 #
 # proxy_to_tor_hosts:
 #   - proxy_sink: something.domain.com
@@ -13,16 +18,14 @@
 #     proxy_source: something.onion
 #     email: email@domain.com
 #
-# proxy_to_wireguard_hosts:
+# proxy_to_clearnet_hosts:
 #   - proxy_sink: something.domain.com
-#     proxy_source_ip: 10.200.200.2
-#     proxy_source_pubkey: mO/e0dL7mvreXKxhAGfdskormU/C7/M25kTX4=
+#     proxy_source: 10.200.200.2
 #     email: email@domain.com
 #
 # proxy_to_lightning_hosts:
 #   - proxy_sink: 9735
-#     proxy_source_ip: 10.200.200.2
-#     proxy_source_pubkey: mO/e0dL7mvreXKxhAGfdskormU/C7/M25kTX4=
+#     proxy_source: 10.200.200.2
 
 # Automating the procedure described here
 # https://docs.btcpayserver.org/Deployment/ReverseProxyToTor/#reverse-proxy-to-tor
@@ -37,13 +40,16 @@
 
   pre_tasks:
     - debug:
+        msg: "wireguard_hosts = {{ wireguard_hosts }}"
+
+    - debug:
         msg: "proxy_to_tor_hosts = {{ proxy_to_tor_hosts }}"
 
     - debug:
-        msg: "proxy_to_wireguard_hosts = {{ proxy_to_wireguard_hosts }}"
+        msg: "proxy_to_clearnet_hosts = {{ proxy_to_clearnet_hosts }}"
 
     - debug:
-        msg: "proxy_to_lightning_hosts = {{ proxy_to_wireguard_hosts }}"
+        msg: "proxy_to_lightning_hosts = {{ proxy_to_lightning_hosts }}"
 
     - name: apt-get update
       apt:
@@ -51,8 +57,7 @@
 
   roles:
     - role: ufw
-    # - role: nginx-reverse-proxy-to-tor
-    # proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
+    - role: wireguard-server
 
   tasks:
     # VERY IMPORTANT: Add swap if the proxy machine is resource limited.
@@ -86,5 +91,4 @@
 
     - name: turn on swap
       command: swapon -a
-    # Add swap end ****
 

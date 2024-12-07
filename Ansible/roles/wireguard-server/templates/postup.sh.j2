@@ -1,0 +1,42 @@
+# Enable IP forwarding
+# https://serverfault.com/questions/240532/iptables-dnat-not-working
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+WAN=ens5
+LAN=wg0
+
+# ACCEPT forwards from WAN to 9735
+{% for item in proxy_to_lightning_hosts %}
+iptables -I FORWARD 1 -i $WAN -p tcp --dport {{item.proxy_source}} -j ACCEPT
+{% endfor %}
+# ACCEPT forwards going back and forth
+iptables -I FORWARD 1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Add NAT rules
+{% for item in proxy_to_lightning_hosts %}
+iptables -t nat -A PREROUTING -p tcp -i $WAN --dport {{item.proxy_source}} -j DNAT --to-destination {{item.proxy_sink}}:9735
+{% endfor %}
+iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+iptables -t nat -A POSTROUTING -o $LAN -j MASQUERADE
+
+
+# Notes
+# List rules
+# iptables -L --line-numbers -v
+# iptables -t nat -L --line-numbers -v
+
+# Reset and allow everything
+: '
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -t raw -F
+iptables -t raw -X
+iptables -t security -F
+iptables -t security -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+'
