@@ -58,6 +58,8 @@
   roles:
     - role: ufw
     - role: wireguard-server
+    # - role: nginx-reverse-proxy-to-tor
+    # proxy_to_tor_hosts: "{{proxy_to_tor_hosts}}"
 
   tasks:
     # VERY IMPORTANT: Add swap if the proxy machine is resource limited.
