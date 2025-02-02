@@ -9,8 +9,10 @@ services:
     environment:
       BITCOIN_EXTRA_ARGS: |
         rpcauth=electrs:29b2fae539626e8bac1a1486de38164e$$32e907cec3853446590f0f5e794b3473640250c155d76bcbf0339a904f0b1cbf
+
   electrs:
     image: gradientskier/electrs:v0.9.9
+    container_name: electrs
     entrypoint: electrs --log-filters=INFO --index-batch-size=10 --timestamp --db-dir /home/user/db
     restart: unless-stopped
     healthcheck:
@@ -28,6 +30,18 @@ services:
       ELECTRS_ELECTRUM_RPC_ADDR: 0.0.0.0:50001
     depends_on:
       - bitcoind
+
+  # TODO to implement electrs encrypted server
+  # Neet to recompile nginx with stream
+  # https://github.com/tekn0ir/nginx-stream/blob/master/Dockerfile
+  electrs-nginx:
+    image: tekn0ir/nginx-stream
+    container_name: electrs-nginx
+    ports:
+      - "50002:50002"
+    volumes:
+      - "./electrs.nginx.conf:/opt/nginx/stream.conf.d/electrs.conf:ro"
+      - "nginx_certs:/opt/nginx/certs:ro"
 
 volumes:
   electrs_datadir:
