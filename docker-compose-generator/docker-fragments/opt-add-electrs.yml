@@ -40,11 +40,28 @@ services:
     ports:
       - "50002:50002"
     volumes:
-      - "./electrs.nginx.conf:/opt/nginx/stream.conf.d/electrs.conf:ro"
+      - "electrs_nginx_conf:/opt/nginx/stream.conf.d:ro"
       - "nginx_certs:/opt/nginx/certs:ro"
+
+  electrs-nginx-gen:
+    restart: unless-stopped
+    image: btcpayserver/docker-gen:0.10.7
+    container_name: electrs-nginx-gen
+    environment:
+      DEFAULT_HOST: ${REVERSEPROXY_DEFAULT_HOST:-none}
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "./electrs.nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro"
+      - "electrs_nginx_conf:/etc/nginx/conf.d"
+      - "nginx_vhost:/etc/nginx/vhost.d"
+      - "nginx_html:/usr/share/nginx/html"
+    entrypoint: /usr/local/bin/docker-gen -notify-sighup electrs-nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/electrs.conf
+    links:
+      - electrs-nginx
 
 volumes:
   electrs_datadir:
+  electrs_nginx_conf:
 
 incompatible:
   - pruning
