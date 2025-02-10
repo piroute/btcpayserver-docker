@@ -35,7 +35,7 @@ services:
   # Neet to recompile nginx with stream
   # https://github.com/tekn0ir/nginx-stream/blob/master/Dockerfile
   electrs-nginx:
-    image: tekn0ir/nginx-stream
+    image: gradientskier/nginx-stream:v1.26.3-amd64
     container_name: electrs-nginx
     ports:
       - "50002:50002"
